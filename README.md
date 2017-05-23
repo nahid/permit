@@ -98,10 +98,87 @@ Here `user` and `post` is a service/module name and `create`, `update` and `dele
 
 `bool Permit::setUserRole(int $user_id, string $role_name)`
 
-#### Example
+##### Example
 
 ```php
 Permit::setUserRole(1, 'admin');
 ```
 
+### Set User Permission
+
+##### Syntax
+
+`bool Permit::setUserPermission(int $user_id, string $service, array $events)`
+
+##### Example
+
+```php
+Permit::setUserPermission(1, 'post', ['create'=>true, 'update'=>true]);
+```
+
+
+### Set Role Permission
+
+##### Syntax
+
+`bool Permit::setRolePermission(string $role_name, string $service, array $events)`
+
+##### Example
+
+```php
+Permit::setRolePermission('admin', 'post', ['create'=>true, 'update'=>true]);
+```
+
+
+## How to Authorize an event?
+
+### Check user ability
+
+```php
+$user = User::find(1);
+
+if (Permit::userCan($user, 'post:create')) {
+    //do something
+}
+```
+In `post:create` is an event with module/service. Here `post` is a module and `create` is an event.
+
+So if the user is authorized with post create event then the user passed.
+
+`Permit::userCan()` method return boolean. If you want to throw Unauthorized exception you may use
+
+`Permit::userAllows()` with same parameters.
+
+### Check user role ability
+
+```php
+$user = User::find(1);
+
+if (Permit::roleCan($user, 'post:create')) {
+    //do something
+}
+```
+
+Here when given users role allowed this event then its passed. Here is a similar method for throw exception
+
+`Permit::roleAllows()`
+
+### User ability
+
+User ability with role and specific permissions. Here we check both(user and role) permission but if user specific permission is priority first.
+
+```php
+$user = User::find(1);
+
+if (Permit::can($user, 'post:create')) {
+    //do something
+}
+```
+
+and here is a alternate method for throw exception
+
+`Permit::allows()`
+
+
+### Helper function
 
