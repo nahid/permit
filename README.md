@@ -44,3 +44,50 @@ return [
 
 ];
 ```
+
+Now run this command for migrations
+
+```shell
+php artisan migrate
+```
+
+You are all most done, just add this trait `Nahid\Permit\Users\Permitable` in you `User` model. Example
+
+```php
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+use Nahid\Permit\Users\Permitable;
+
+class User extends Model
+{
+    use Permitable;
+}
+```
+
+Yeh, its done.
+
+## How does it work?
+
+Its a common question. But first you have to learn about our database architecture.
+When you run migrate command then we create a table 'permissions' with field 'role_name' and 'permission', and
+add two column 'role' and 'permissions' in `users` table. `role` column store users role and `permissions` column store user specific controls.
+Here `role` column has a relation with `permissions.role_name` column with its controls. `permissions.permission` handle role based control.
+
+We store permissions as JSON format with specific service and controls.
+
+```json
+{
+    "user": {
+        "create": true,
+        "update": true
+    },
+    "post": {
+        "create": false,
+        "update": true,
+        "delete": false
+    }
+}
+```
+
+Here `user` and `post` is a service/module name and `create`, `update` and `delete` or others is an event.
