@@ -3,6 +3,7 @@
     "description": "Permit is a laravel authorization package",
     "type": "library",
     "require": {
+        "php": ">=5.5.9",
         "nahid/jsonq": "^2.0",
         "rinvex/repository": "dev-develop"
     },
