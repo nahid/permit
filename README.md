@@ -91,3 +91,17 @@ We store permissions as JSON format with specific service and controls.
 ```
 
 Here `user` and `post` is a service/module name and `create`, `update` and `delete` or others is an event.
+
+### Set User Role
+
+##### Syntax
+
+`bool Permit::setUserRole(int $user_id, string $role_name)`
+
+#### Example
+
+```php
+Permit::setUserRole(1, 'admin');
+```
+
+
