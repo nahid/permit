@@ -90,7 +90,7 @@ We store permissions as JSON format with specific service and controls.
 }
 ```
 
-Here `user` and `post` is a service/module name and `create`, `update` and `delete` or others is an event.
+Here `user` and `post` is a service/module name and `create`, `update` and `delete` or others are abilities.
 
 ### Set User Role
 
@@ -108,7 +108,7 @@ Permit::setUserRole(1, 'admin');
 
 ##### Syntax
 
-`bool Permit::setUserPermission(int $user_id, string $service, array $events)`
+`bool Permit::setUserPermission(int $user_id, string $service, array $abilities)`
 
 ##### Example
 
@@ -121,7 +121,7 @@ Permit::setUserPermission(1, 'post', ['create'=>true, 'update'=>true]);
 
 ##### Syntax
 
-`bool Permit::setRolePermission(string $role_name, string $service, array $events)`
+`bool Permit::setRolePermission(string $role_name, string $service, array $abilities)`
 
 ##### Example
 
@@ -141,9 +141,9 @@ if (Permit::userCan($user, 'post:create')) {
     //do something
 }
 ```
-In `post:create` is an event with module/service. Here `post` is a module and `create` is an event.
+In `post:create` is an event with module/service. Here `post` is a module and `create` is an ability.
 
-So if the user is authorized with post create event then the user passed.
+So if the user is authorized with post create event then the will be user passed.
 
 `Permit::userCan()` method return boolean. If you want to throw Unauthorized exception you may use
 
