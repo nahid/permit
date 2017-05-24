@@ -165,7 +165,7 @@ Here when given users role allowed this event then its passed. Here is a similar
 
 ### User ability
 
-User ability with role and specific permissions. Here we check both(user and role) permission but if user specific permission is priority first.
+You can check user ability from user or user role. Here we check both(user and role) permissions but if user specific permission is set then its priority first.
 
 ```php
 $user = User::find(1);
@@ -180,5 +180,68 @@ and here is a alternate method for throw exception
 `Permit::allows()`
 
 
-### Helper function
+### Helper functions
 
+Here you can use helper function instead of facades.
+
+#### user_can()
+
+You can use `user_can()` instead of `Permit::userCan()`
+
+#### user_allows()
+
+You can use `user_allows()` instead of `Permit::userAllows()`
+
+#### role_can()
+
+You can use `role_can()` instead of `Permit::roleCan()`
+
+#### role_allows()
+
+You can use `role_allows()` instead of `Permit::roleAllows()`
+
+#### can_do()
+
+You can use `can_do()` instead of `Permit::can()`
+
+#### allows()
+
+You can use `allows()` instead of `Permit::allows()
+
+
+## Blade Directive
+
+Sometimes you may want to use this functionalities in you view. Permit comes with all blade directives.
+
+
+#### Example
+
+```
+@userCan($user, 'post:create')
+    <a href="#">Link</a>
+@endUserCan
+```
+
+You can also use else directive
+
+```
+@userCan($user, 'post:create')
+    <a href="#">Link</a>
+@elseDo
+    <a href="#">Link 2</a>
+@endUserCan
+```
+
+#### List of directives
+
+- `@userCan()`
+- `@endUserCan()`
+- `@roleCan()`
+- `@endRoleCan()`
+- `@allows()`
+- `@endAllows()`
+- `@elseDo()`
+
+If you have any kind of query, please feel free to share with me
+
+Thank you
