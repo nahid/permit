@@ -25,7 +25,7 @@ trait Permitable
 
     public function permission()
     {
-        return $this->hasOne('Nahid\Permit\Permissions\Permission', 'role_name', 'role');
+        return $this->belongsTo('Nahid\Permit\Permissions\Permission', config('permit.users.role_column'), 'role_name');
     }
 
 }

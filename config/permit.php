@@ -3,7 +3,8 @@
 return [
     "users" => [
         'model' => \App\User::class,
-        'table' => 'users'
+        'table' => 'users',
+        'role_column'   => 'role'
     ]
 
 ];

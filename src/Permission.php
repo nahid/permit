@@ -36,13 +36,15 @@ class Permission
         $user_model =$this->config->get('permit.users.model');
 
         if ($user instanceof $user_model) {
-            $permissions = json_decode($user->permissions);
-            $permit = explode(':', $permission);
-            $json = $this->json->collect($permissions);
+            if(!empty($user->permissions)) {
+                $permissions = json_decode($user->permissions);
+                $permit = explode(':', $permission);
+                $json = $this->json->collect($permissions);
 
-            $this->userCanDo = $json->node($permit[0])->get(false);
-            if ($this->isUserDo($permit[1])) {
-                return true;
+                $this->userCanDo = $json->node($permit[0])->get(false);
+                if ($this->isUserDo($permit[1])) {
+                    return true;
+                }
             }
         }
 
@@ -64,14 +66,16 @@ class Permission
     public function roleAllows($user, $permission)
     {
         $user_model =$this->config->get('permit.users.model');
-
         if ($user instanceof $user_model) {
-            $permissions = json_decode($user->permission->permission);
-            $permit = explode(':', $permission);
-            $json = $this->json->collect($permissions);
-            $this->roleCanDo = $json->node($permit[0])->get(false);
-            if ($this->isRoleDo($permit[1])) {
-                return true;
+            if (!is_null($user->permission))
+            {
+                $permissions = json_decode($user->permission->permission);
+                $permit = explode(':', $permission);
+                $json = $this->json->collect($permissions);
+                $this->roleCanDo = $json->node($permit[0])->get(false);
+                if ($this->isRoleDo($permit[1])) {
+                    return true;
+                }
             }
         }
 
@@ -198,7 +202,7 @@ class Permission
 
         if ($user) {
             $this->userModel->unguard();
-            $this->user->update($user_id, ['role'=>$role_name]);
+            $this->user->update($user_id, [$this->config->get('permit.users.role_column')=>$role_name]);
             $this->userModel->reguard();
             return true;
         }

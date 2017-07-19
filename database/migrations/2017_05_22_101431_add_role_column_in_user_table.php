@@ -13,9 +13,9 @@ class AddRoleColumnInUserTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn(config('permit.users.table'), 'role')) {
+        if (!Schema::hasColumn(config('permit.users.table'), config('permit.users.role_column'))) {
             Schema::table(config('permit.users.table'), function(Blueprint $tbl) {
-                $tbl->string('role', 50);
+                $tbl->string(config('permit.users.role_column'), 50);
             });
         }
     }
@@ -27,9 +27,9 @@ class AddRoleColumnInUserTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn(config('permit.users.table'), 'role')) {
+        if (Schema::hasColumn(config('permit.users.table'), config('permit.users.role_column'))) {
             Schema::table(config('permit.users.table'), function(Blueprint $tbl) {
-                $tbl->dropColumn('role');
+                $tbl->dropColumn(config('permit.users.role_column'));
             });
         }
     }

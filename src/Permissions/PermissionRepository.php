@@ -2,20 +2,14 @@
 
 namespace Nahid\Permit\Permissions;
 
-use Rinvex\Repository\Repositories\EloquentRepository;
+use Nahid\Permit\BaseRepository;
 
-class PermissionRepository extends EloquentRepository
+class PermissionRepository extends BaseRepository
 {
-    protected $repositoryId = 'permit.repository.permission';
 
-    protected $model = 'Nahid\Permit\Permissions\Permission';
-
-
-
-    function __construct()
+    protected function setModel()
     {
-
+        return 'Nahid\Permit\Permissions\Permission';
     }
-
 
 }

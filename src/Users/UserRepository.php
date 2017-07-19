@@ -2,18 +2,14 @@
 
 namespace Nahid\Permit\Users;
 
-use Rinvex\Repository\Repositories\EloquentRepository;
+use Nahid\Permit\BaseRepository;
 
-class UserRepository extends EloquentRepository
+class UserRepository extends BaseRepository
 {
-    protected $repositoryId = 'permit.repository.user';
 
-    protected $model;
-
-    function __construct()
+    protected function setModel()
     {
-        $this->model = config('permit.users.model');
+        return config('permit.users.model');
     }
-
 
 }
