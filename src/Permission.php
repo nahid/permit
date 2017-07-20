@@ -169,7 +169,7 @@ class Permission
 
             //dd($row);
 
-            $this->permission->create($row);
+            $role->create($row);
         }
 
 
