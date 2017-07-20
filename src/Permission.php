@@ -139,6 +139,10 @@ class Permission
 
     protected function isUserDo($permission)
     {
+        if (is_null($permission)) {
+            return false;
+        }
+
         if (isset($this->userCanDo[$permission])) {
             if ($this->userCanDo[$permission]) {
                 return true;
@@ -169,7 +173,7 @@ class Permission
 
             //dd($row);
 
-            $role->create($row);
+            $this->permission->create($row);
         }
 
 
@@ -213,6 +217,10 @@ class Permission
 
     protected function isRoleDo($permission)
     {
+        if (is_null($permission)) {
+            return false;
+        }
+
         if (isset($this->roleCanDo[$permission])) {
             if ($this->roleCanDo[$permission]) {
                 return true;
