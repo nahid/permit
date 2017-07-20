@@ -158,7 +158,9 @@ class Permission
             foreach ($permissions as $name=>$val) {
                 $permission[$service][$name] = $val;
             }
-            $this->permission->update($role->id, ['permission'=>$permission]);
+
+            $role->update(['permission'=>$permission]);
+            
         } else {
             $row = ['role_name'=>$role_name, 'permission'=>[]];
             foreach ($permissions as $name=>$val) {
