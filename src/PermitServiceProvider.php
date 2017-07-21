@@ -25,6 +25,9 @@ class PermitServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerPermit();
+        $this->commands([
+            \Nahid\Permit\Commands\PermissionSyncCommand::class
+        ]);
     }
     /**
      * Setup the config.
