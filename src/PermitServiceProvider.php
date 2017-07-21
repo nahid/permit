@@ -28,6 +28,8 @@ class PermitServiceProvider extends ServiceProvider
         $this->commands([
             \Nahid\Permit\Commands\PermissionSyncCommand::class
         ]);
+
+        $this->app['router']->aliasMiddleware('permit', \Nahid\Permit\Middleware\PermitMiddleware::class);
     }
     /**
      * Setup the config.

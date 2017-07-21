@@ -263,6 +263,4 @@ class Permission
         return count($auth_permissions);
     }
 
-
-
 }
