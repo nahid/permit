@@ -26,11 +26,10 @@ class Permission
         $this->config = $config;
         $this->permission = $permission;
         $this->user = $user;
-        $user_model = $this->config->get('permit.users.model');
-        $this->userModel = new $user_model;
-        $this->superUser = $this->config->get('permit.super_user');
         $this->userModelNamespace = $this->config->get('permit.users.model');
+        $this->superUser = $this->config->get('permit.super_user');
         $this->roleColumn = $this->config->get('permit.users.role_column');
+        $this->userModel = new $this->userModelNamespace;
 
         $this->json = new Jsonq();
     }
