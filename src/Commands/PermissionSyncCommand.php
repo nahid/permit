@@ -11,7 +11,7 @@ class PermissionSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permit {cmd}';
+    protected $signature = 'permit:permissions {cmd}';
 
     /**
      * The console command description.

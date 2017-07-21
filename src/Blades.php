@@ -13,8 +13,8 @@ class Blades
             return "<?php if (app(\\Nahid\\Permit\\Permission::class)->userCan({$expression})): ?>";
         });
 
-        Blade::directive('elseDo', function ($expression) {
-            return "<?php else: ?>";
+        Blade::directive('elseUserCan', function ($expression) {
+            return "<?php elseif (app(\\Nahid\\Permit\\Permission::class)->userCan({$expression})): ?>";
         });
 
         Blade::directive('endUserCan', function () {
@@ -25,12 +25,20 @@ class Blades
             return "<?php if (app(\\Nahid\\Permit\\Permission::class)->roleCan({$expression})): ?>";
         });
 
+        Blade::directive('elseRoleCan', function ($expression) {
+            return "<?php elseif (app(\\Nahid\\Permit\\Permission::class)->roleCan({$expression})): ?>";
+        });
+
         Blade::directive('endRoleCan', function () {
             return "<?php endif; ?>";
         });
 
         Blade::directive('allows', function ($expression) {
             return "<?php if (app(\\Nahid\\Permit\\Permission::class)->can({$expression})): ?>";
+        });
+
+        Blade::directive('elseAllows', function ($expression) {
+            return "<?php elseif (app(\\Nahid\\Permit\\Permission::class)->can({$expression})): ?>";
         });
 
         Blade::directive('endAllows', function () {

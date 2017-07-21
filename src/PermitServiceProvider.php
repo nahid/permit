@@ -14,9 +14,9 @@ class PermitServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $blade = new Blades();
         $this->setupConfig();
         $this->setupMigrations();
+        $blade = new Blades();
         $blade->runCompiles();
     }
     /**
