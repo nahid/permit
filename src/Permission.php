@@ -19,8 +19,7 @@ class Permission
     protected $userModel;
     protected $user;
     protected $json;
-    protected $userCanDo = [];
-    protected $roleCanDo = [];
+    protected $authPermissions = [];
 
     function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
     {
@@ -50,12 +49,14 @@ class Permission
                 $permit = explode(':', $permission);
                 $json = $this->json->collect($permissions);
 
-                $this->userCanDo = $json->node($permit[0])->get(false);
+                $this->authPermissions = (array) $json->node($permit[0])->get(false);
+
                 if (count($permit) === 1) {
-                    if (!is_null($this->userCanDo) and count($this->userCanDo)>0) {
+                    if ($this->getAuthPermissions()>0) {
                         return true;
                     }
                 }
+
                 if (count($permit)>1) {
                     if ($this->isPermissionDo($permit[1])) {
                         return true;
@@ -93,12 +94,14 @@ class Permission
                 $permit = explode(':', $permission);
                 $json = $this->json->collect($permissions);
 
-                $this->roleCanDo = $json->node($permit[0])->get(false);
+                $this->authPermissions = (array) $json->node($permit[0])->get(false);
+
                 if (count($permit) === 1) {
-                    if (!is_null($this->roleCanDo) and count($this->roleCanDo)>0) {
+                    if ($this->getAuthPermissions()>0) {
                         return true;
                     }
                 }
+
                 if (count($permit)>1) {
                     if ($this->isPermissionDo($permit[1])) {
                         return true;
@@ -129,23 +132,22 @@ class Permission
         if ($user instanceof $this->userModelNamespace) {
             $user_json = new Jsonq();
             $role_json = new Jsonq();
-            $permissions = [];
+
             $user_permissions = json_decode($user->permissions);
             $role_permissions = json_decode($user->permission->permission);
-
 
             $permit = explode(':', $permission);
 
             $role_permit = $role_json->collect($role_permissions);
-            $this->roleCanDo = (array) $role_permit->node($permit[0])->get(false);
+            $role_auth_permissions = (array) $role_permit->node($permit[0])->get(false);
 
             $user_permit = $user_json->collect($user_permissions);
-            $this->userCanDo = (array) $user_permit->node($permit[0])->get(false);
+            $user_auth_permissions = (array) $user_permit->node($permit[0])->get(false);
 
+            $this->authPermissions = array_merge($role_auth_permissions, $user_auth_permissions);
 
-            $permissions = array_merge($this->roleCanDo, $this->userCanDo);
             if (count($permit) === 1) {
-                if (count($permissions)>0) {
+                if ($this->getAuthPermissions()>0) {
                     return true;
                 }
             }
@@ -242,13 +244,24 @@ class Permission
             return false;
         }
 
-        if (isset($this->roleCanDo[$permission])) {
-            if ($this->roleCanDo[$permission]) {
+        if (isset($this->authPermissions[$permission])) {
+            if ($this->authPermissions[$permission]) {
                 return true;
             }
         }
 
         return false;
+    }
+
+
+    protected function getAuthPermissions()
+    {
+        $permissions = $this->authPermissions;
+        $auth_permissions = array_filter($permissions, function($value) {
+            return $value === true;
+        });
+
+        return count($auth_permissions);
     }
 
 
