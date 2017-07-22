@@ -5,7 +5,6 @@ namespace Nahid\Permit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Config\Repository;
 use Nahid\JsonQ\Jsonq;
-
 use Nahid\Permit\Permissions\PermissionRepository;
 use Nahid\Permit\Users\UserRepository;
 
@@ -21,7 +20,7 @@ class Permission
     protected $json;
     protected $authPermissions = [];
 
-    function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
+    public function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
     {
         $this->config = $config;
         $this->permission = $permission;
@@ -29,21 +28,19 @@ class Permission
         $this->userModelNamespace = $this->config->get('permit.users.model');
         $this->superUser = $this->config->get('permit.super_user');
         $this->roleColumn = $this->config->get('permit.users.role_column');
-        $this->userModel = new $this->userModelNamespace;
+        $this->userModel = new $this->userModelNamespace();
 
         $this->json = new Jsonq();
     }
 
-
     public function userAllows($user, $permission)
     {
-
         if ($user instanceof $this->userModelNamespace) {
             if ($user->{$this->roleColumn} == $this->superUser) {
                 return true;
             }
 
-            if(!empty($user->permissions)) {
+            if (!empty($user->permissions)) {
                 $permissions = json_decode($user->permissions);
                 $permit = explode(':', $permission);
                 $json = $this->json->collect($permissions);
@@ -51,12 +48,12 @@ class Permission
                 $this->authPermissions = (array) $json->node($permit[0])->get(false);
 
                 if (count($permit) === 1) {
-                    if ($this->getAuthPermissions()>0) {
+                    if (count($this->getAuthPermissions()) > 0) {
                         return true;
                     }
                 }
 
-                if (count($permit)>1) {
+                if (count($permit) > 1) {
                     if ($this->isPermissionDo($permit[1])) {
                         return true;
                     }
@@ -64,8 +61,7 @@ class Permission
             }
         }
 
-        throw new AuthorizationException("Unauthorized");
-
+        throw new AuthorizationException('Unauthorized');
     }
 
     public function userCan($user, $permission)
@@ -77,18 +73,14 @@ class Permission
         }
     }
 
-
-
     public function roleAllows($user, $permission)
     {
-
         if ($user instanceof $this->userModelNamespace) {
             if ($user->{$this->roleColumn} == $this->superUser) {
                 return true;
             }
 
-            if (!is_null($user->permission))
-            {
+            if (!is_null($user->permission)) {
                 $permissions = json_decode($user->permission->permission);
                 $permit = explode(':', $permission);
                 $json = $this->json->collect($permissions);
@@ -96,35 +88,30 @@ class Permission
                 $this->authPermissions = (array) $json->node($permit[0])->get(false);
 
                 if (count($permit) === 1) {
-                    if ($this->getAuthPermissions()>0) {
+                    if (count($this->getAuthPermissions()) > 0) {
                         return true;
                     }
                 }
 
-                if (count($permit)>1) {
+                if (count($permit) > 1) {
                     if ($this->isPermissionDo($permit[1])) {
                         return true;
                     }
                 }
-
             }
         }
 
-        throw new AuthorizationException("Unauthorized");
+        throw new AuthorizationException('Unauthorized');
     }
-
 
     public function roleCan($user, $permission)
     {
-
         try {
             return $this->roleAllows($user, $permission);
         } catch (AuthorizationException $e) {
             return false;
         }
-        
     }
-
 
     public function allows($user, $permission)
     {
@@ -146,23 +133,20 @@ class Permission
             $this->authPermissions = array_merge($role_auth_permissions, $user_auth_permissions);
 
             if (count($permit) === 1) {
-                if ($this->getAuthPermissions()>0) {
+                if (count($this->getAuthPermissions()) > 0) {
                     return true;
                 }
             }
 
-            if (count($permit)>1) {
+            if (count($permit) > 1) {
                 if ($this->isPermissionDo($permit[1])) {
                     return true;
                 }
             }
-
         }
 
-        throw new AuthorizationException("Unauthorized");
-
+        throw new AuthorizationException('Unauthorized');
     }
-
 
     public function can($user, $permission)
     {
@@ -173,23 +157,20 @@ class Permission
         }
     }
 
-
-
     public function setRolePermission($role_name, $service, $permissions = [])
     {
         $role = $this->permission->findBy('role_name', $role_name);
 
         if ($role) {
             $permission = json_decode($role->permission, true);
-            foreach ($permissions as $name=>$val) {
+            foreach ($permissions as $name => $val) {
                 $permission[$service][$name] = $val;
             }
 
-            $role->update(['permission'=>$permission]);
-            
+            $role->update(['permission' => $permission]);
         } else {
-            $row = ['role_name'=>$role_name, 'permission'=>[]];
-            foreach ($permissions as $name=>$val) {
+            $row = ['role_name' => $role_name, 'permission' => []];
+            foreach ($permissions as $name => $val) {
                 $row['permission'][$service][$name] = $val;
             }
 
@@ -197,8 +178,6 @@ class Permission
 
             $this->permission->create($row);
         }
-
-
 
         return true;
     }
@@ -209,20 +188,17 @@ class Permission
 
         if ($user) {
             $permission = json_decode($user->permissions, true);
-            foreach ($permissions as $name=>$val) {
+            foreach ($permissions as $name => $val) {
                 $permission[$service][$name] = $val;
             }
 
             $this->userModel->unguard();
-            $this->user->update($user_id, ['permissions'=>$permission]);
+            $this->user->update($user_id, ['permissions' => $permission]);
             $this->userModel->reguard();
         }
 
-
-
         return true;
     }
-
 
     public function setUserRole($user_id, $role_name)
     {
@@ -230,12 +206,12 @@ class Permission
 
         if ($user) {
             $this->userModel->unguard();
-            $this->user->update($user_id, [$this->config->get('permit.users.role_column')=>$role_name]);
+            $this->user->update($user_id, [$this->config->get('permit.users.role_column') => $role_name]);
             $this->userModel->reguard();
+
             return true;
         }
     }
-
 
     protected function isPermissionDo($permission)
     {
@@ -252,15 +228,13 @@ class Permission
         return false;
     }
 
-
     protected function getAuthPermissions()
     {
         $permissions = $this->authPermissions;
-        $auth_permissions = array_filter($permissions, function($value) {
+        $auth_permissions = array_filter($permissions, function ($value) {
             return $value === true;
         });
 
-        return count($auth_permissions);
+        return $auth_permissions;
     }
-
 }

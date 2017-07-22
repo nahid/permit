@@ -6,11 +6,10 @@ abstract class BaseRepository
 {
     protected $model;
 
-
-    function __construct()
+    public function __construct()
     {
         $model = $this->setModel();
-        $this->model = new $model;
+        $this->model = new $model();
     }
 
     abstract protected function setModel();
@@ -33,6 +32,11 @@ abstract class BaseRepository
     public function create(array $data)
     {
         return $this->model->create($data);
+    }
+
+    public function insert(array $data)
+    {
+        return $this->model->insert($data);
     }
 
 }

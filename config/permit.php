@@ -19,7 +19,9 @@ return [
         ],
         'supervisor'    => [
             'post.create',
-            'post.update'
+            'post.update',
+            'user.create',
+            'user.update',
         ]
     ]
 

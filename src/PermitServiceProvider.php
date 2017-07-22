@@ -26,7 +26,7 @@ class PermitServiceProvider extends ServiceProvider
     {
         $this->registerPermit();
         $this->commands([
-            \Nahid\Permit\Commands\PermissionSyncCommand::class
+            \Nahid\Permit\Commands\PermissionSyncCommand::class,
         ]);
 
         $this->app['router']->aliasMiddleware('permit', \Nahid\Permit\Middleware\PermitMiddleware::class);
@@ -78,7 +78,7 @@ class PermitServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'permit'
+            'permit',
         ];
     }
 }

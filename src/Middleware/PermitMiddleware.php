@@ -4,7 +4,6 @@ namespace Nahid\Permit\Middleware;
 
 class PermitMiddleware extends AbstractMiddleware
 {
-
     protected function permission($permission)
     {
         if (auth()->check()) {

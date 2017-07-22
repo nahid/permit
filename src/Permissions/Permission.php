@@ -12,9 +12,8 @@ class Permission extends Model
 
     public $fillable = [
         'role_name',
-        'permission'
+        'permission',
     ];
-
 
     /*public function getPermissionsAttribute()
     {

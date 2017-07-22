@@ -10,19 +10,17 @@ abstract class AbstractMiddleware
 
     /**
      * @param $permission
+     *
      * @return bool
      */
     abstract protected function permission($permission);
 
     public function handle($request, Closure $next, $permission)
     {
-
         if ($this->permission($permission)) {
             return $next($request);
         }
 
         return redirect($this->redirectTo);
-
     }
-
 }
