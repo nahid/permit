@@ -2,22 +2,18 @@
 
 namespace Nahid\Permit\Middleware;
 
-use Closure;
-
-class PermitMiddleware
+class PermitMiddleware extends AbstractMiddleware
 {
 
-    public function handle($request, Closure $next, $permission)
+    protected function permission($permission)
     {
-        if(auth()->check()) {
+        if (auth()->check()) {
             $user = auth()->user();
             if (can_do($user, $permission)) {
-                return $next($request);
+                return true;
             }
         }
 
-        return redirect('/login');
-
+        return false;
     }
-
 }
