@@ -15,7 +15,7 @@ class AddPermissionsColumnInUsersTable extends Migration
     {
         if (!Schema::hasColumn(config('permit.users.table'), 'permissions')) {
             Schema::table(config('permit.users.table'), function(Blueprint $tbl) {
-                $tbl->text('permissions');
+                $tbl->text('permissions')->nullable();
             });
         }
     }
