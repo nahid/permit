@@ -9,7 +9,7 @@ return [
     'super_user'    =>  'admin',
 
     'permissions'   => [
-        "post"  => ['create', 'update', 'delete'],
+        "post"  => ['create', 'update'=>'post.update', 'delete'],
         "user"  => ['create', 'update', 'delete'],
     ],
 
@@ -22,6 +22,12 @@ return [
             'post.update',
             'user.create',
             'user.update',
+        ]
+    ],
+
+    'policies'  => [
+        'post'  => [
+            'update'    => '\App\Policies\PostPolicy@update'
         ]
     ]
 

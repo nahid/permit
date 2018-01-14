@@ -26,6 +26,7 @@ class PermissionSyncCommand extends Command
 
     protected $permissions;
     protected $roles;
+    protected $policies;
     protected $user;
     protected $permission;
     protected $userColumn;
@@ -39,6 +40,7 @@ class PermissionSyncCommand extends Command
         parent::__construct();
         $this->permissions = config('permit.permissions');
         $this->roles = config('permit.roles');
+        $this->policies = config('permit.policies');
         $this->roleColumn = config('permit.users.role_column');
         $this->superUser = config('permit.super_user');
         $this->user = $userRepository;
@@ -66,7 +68,6 @@ class PermissionSyncCommand extends Command
             $permissions = [];
             foreach ($permission as $rules) {
                 $rule = explode('.', $rules);
-
                 $perms = $permission_object->node($rule[0])->get(true);
                 if ($rule[1] == '*') {
                     if (!is_null($perms)) {
@@ -75,8 +76,16 @@ class PermissionSyncCommand extends Command
                         }
 
                         $auth_perms = [];
-                        foreach ($perms as $permission) {
-                            $auth_perms[$permission] = true;
+                        foreach ($perms as $perm => $permission) {
+                            if (is_int($perm)) {
+                                $auth_perms[$permission] = true;
+                            } else if (is_string($permission)) {
+                                $policies = explode('.', $permission);
+                                if (count($policies)==2) {
+                                    $auth_perms[$perm] = $this->policies[$policies[0]][$policies[1]];
+                                }
+                            }
+
                         }
                         $permissions[$rule[0]] = $auth_perms;
                     }
@@ -86,9 +95,15 @@ class PermissionSyncCommand extends Command
                             $permissions[$rule[0]] = [];
                         }
 
+                       // dd($rule, $perms);
 
                         if (in_array($rule[1], $perms)) {
                             $permissions[$rule[0]][$rule[1]] = true;
+                        } else if (array_key_exists($rule[1], $perms)) {
+                            $policies = explode('.', $perms[$rule[1]]);
+                            if (count($policies)==2) {
+                                $permissions[$rule[0]][$rule[1]] = $this->policies[$policies[0]][$policies[1]];
+                            }
                         }
                     }
                 }

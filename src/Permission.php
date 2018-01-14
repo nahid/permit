@@ -33,7 +33,7 @@ class Permission
         $this->json = new Jsonq();
     }
 
-    public function userAllows($user, $permission)
+    public function userAllows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
             if ($user->{$this->roleColumn} == $this->superUser) {
@@ -41,21 +41,22 @@ class Permission
             }
 
             if (!empty($user->permissions)) {
-                $permissions = json_decode($user->permissions);
-                $permit = explode(':', $permission);
-                $json = $this->json->collect($permissions);
+                $abilities = json_decode($user->permissions);
+                $this->authPermissions = $this->json->collect($abilities);
 
-                $this->authPermissions = (array) $json->node($permit[0])->get(false);
+                if (!is_null($user->permission)) {
 
-                if (count($permit) === 1) {
-                    if (count($this->getAuthPermissions()) > 0) {
-                        return true;
+                    if (is_array($permission)) {
+                        if ($this->hasOnePermissions($permission, $user)) {
+                            return true;
+                        }
                     }
-                }
 
-                if (count($permit) > 1) {
-                    if ($this->isPermissionDo($permit[1])) {
-                        return true;
+
+                    if (is_string($permission)) {
+                        if ($this->isPermissionDo($permission, $user, $params)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -64,37 +65,36 @@ class Permission
         throw new AuthorizationException('Unauthorized');
     }
 
-    public function userCan($user, $permission)
+    public function userCan($user, $permission, $params = [])
     {
         try {
-            return $this->userAllows($user, $permission);
+            return $this->userAllows($user, $permission, $params);
         } catch (AuthorizationException $e) {
             return false;
         }
     }
 
-    public function roleAllows($user, $permission)
+    public function roleAllows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
             if ($user->{$this->roleColumn} == $this->superUser) {
                 return true;
             }
 
+            $abilities = json_decode($user->permission->permission);
+            $this->authPermissions = $this->json->collect($abilities);
+
             if (!is_null($user->permission)) {
-                $permissions = json_decode($user->permission->permission);
-                $permit = explode(':', $permission);
-                $json = $this->json->collect($permissions);
 
-                $this->authPermissions = (array) $json->node($permit[0])->get(false);
-
-                if (count($permit) === 1) {
-                    if (count($this->getAuthPermissions()) > 0) {
+                if (is_array($permission)) {
+                    if ($this->hasOnePermissions($permission, $user)) {
                         return true;
                     }
                 }
 
-                if (count($permit) > 1) {
-                    if ($this->isPermissionDo($permit[1])) {
+
+                if (is_string($permission)) {
+                    if ($this->isPermissionDo($permission, $user, $params)) {
                         return true;
                     }
                 }
@@ -104,54 +104,51 @@ class Permission
         throw new AuthorizationException('Unauthorized');
     }
 
-    public function roleCan($user, $permission)
+    public function roleCan($user, $permission, $params = [])
     {
         try {
-            return $this->roleAllows($user, $permission);
+            return $this->roleAllows($user, $permission, $params);
         } catch (AuthorizationException $e) {
             return false;
         }
     }
 
-    public function allows($user, $permission)
+    public function allows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
-            $user_json = new Jsonq();
-            $role_json = new Jsonq();
 
-            $user_permissions = json_decode($user->permissions);
-            $role_permissions = json_decode($user->permission->permission);
+            $user_permissions = json_decode($user->permissions, true);
+            $role_permissions = json_decode($user->permission->permission, true);
+            $abilities = array_merge($role_permissions, $user_permissions);
 
-            $permit = explode(':', $permission);
+            $this->authPermissions = $this->json->collect($abilities);
 
-            $role_permit = $role_json->collect($role_permissions);
-            $role_auth_permissions = (array) $role_permit->node($permit[0])->get(false);
+            if (count($abilities) > 0) {
 
-            $user_permit = $user_json->collect($user_permissions);
-            $user_auth_permissions = (array) $user_permit->node($permit[0])->get(false);
+                if (is_array($permission)) {
+                    if ($this->hasOnePermissions($permission, $user)) {
+                        return true;
+                    }
+                }
 
-            $this->authPermissions = array_merge($role_auth_permissions, $user_auth_permissions);
 
-            if (count($permit) === 1) {
-                if (count($this->getAuthPermissions()) > 0) {
-                    return true;
+                if (is_string($permission)) {
+                    if ($this->isPermissionDo($permission, $user, $params)) {
+                        return true;
+                    }
                 }
             }
 
-            if (count($permit) > 1) {
-                if ($this->isPermissionDo($permit[1])) {
-                    return true;
-                }
-            }
+
         }
 
         throw new AuthorizationException('Unauthorized');
     }
 
-    public function can($user, $permission)
+    public function can($user, $permission, $params = [])
     {
         try {
-            return $this->allows($user, $permission);
+            return $this->allows($user, $permission, $params);
         } catch (AuthorizationException $e) {
             return false;
         }
@@ -213,28 +210,66 @@ class Permission
         }
     }
 
-    protected function isPermissionDo($permission)
+    protected function callPolicy($callable, $params = [])
     {
-        if (is_null($permission)) {
-            return false;
-        }
+        $arr_callable = explode('@', $callable);
 
-        if (isset($this->authPermissions[$permission])) {
-            if ($this->authPermissions[$permission]) {
-                return true;
-            }
+        if (count($arr_callable)>1) {
+            $class = new $arr_callable[0]();
+            $method = $arr_callable[1];
+
+            return call_user_func_array([$class, $method], $params);
         }
 
         return false;
     }
 
-    protected function getAuthPermissions()
+    protected function isPermissionDo($permission, $user, $params = [])
     {
-        $permissions = $this->authPermissions;
-        $auth_permissions = array_filter($permissions, function ($value) {
-            return $value === true;
-        });
+        $parameters = [$user];
 
-        return $auth_permissions;
+        $permit = explode(':', $permission);
+
+        if (count($permit) == 2) {
+            $auth_permissions = (array) $this->authPermissions->node($permit[0])->get(false);
+            foreach ($params as $param) {
+                array_push($parameters, $param);
+            }
+
+
+            if (is_null($permission)) {
+                return false;
+            }
+
+            if (isset($auth_permissions[$permit[1]])) {
+                if ($auth_permissions[$permit[1]] === true) {
+                    return true;
+                } else if (is_string($auth_permissions[$permit[1]])) {
+                    return $this->callPolicy($auth_permissions[$permit[1]], $parameters);
+                }
+            }
+        }
+        return false;
+    }
+
+    protected function hasOnePermissions($permissions = [], $user)
+    {
+        foreach ($permissions as $key => $value) {
+            $permission = '';
+            $params = [];
+            if (is_int($key)) {
+                $permission = $value;
+            } else {
+                $permission = $key;
+                $params = $value;
+            }
+
+
+            if ($this->isPermissionDo($permission, $user, $params)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
