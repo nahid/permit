@@ -47,7 +47,7 @@ class Permission
                 if (!is_null($user->permission)) {
 
                     if (is_array($permission)) {
-                        if ($this->hasOnePermissions($permission, $user)) {
+                        if ($this->hasOnePermission($permission, $user)) {
                             return true;
                         }
                     }
@@ -87,7 +87,7 @@ class Permission
             if (!is_null($user->permission)) {
 
                 if (is_array($permission)) {
-                    if ($this->hasOnePermissions($permission, $user)) {
+                    if ($this->hasOnePermission($permission, $user)) {
                         return true;
                     }
                 }
@@ -126,7 +126,7 @@ class Permission
             if (count($abilities) > 0) {
 
                 if (is_array($permission)) {
-                    if ($this->hasOnePermissions($permission, $user)) {
+                    if ($this->hasOnePermission($permission, $user)) {
                         return true;
                     }
                 }
@@ -252,7 +252,7 @@ class Permission
         return false;
     }
 
-    protected function hasOnePermissions($permissions = [], $user)
+    protected function hasOnePermission($permissions = [], $user)
     {
         foreach ($permissions as $key => $value) {
             $permission = '';
