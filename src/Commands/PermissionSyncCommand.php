@@ -68,7 +68,7 @@ class PermissionSyncCommand extends Command
             $permissions = [];
             foreach ($permission as $rules) {
                 $rule = explode('.', $rules);
-                $perms = $permission_object->node($rule[0])->get(true);
+                $perms = $permission_object->node($rule[0])->get(false);
                 if ($rule[1] == '*') {
                     if (!is_null($perms)) {
                         if(!isset($permissions[$rule[0]])) {
@@ -95,7 +95,7 @@ class PermissionSyncCommand extends Command
                             $permissions[$rule[0]] = [];
                         }
 
-                       // dd($rule, $perms);
+//                        dd($rule, $perms);
 
                         if (in_array($rule[1], $perms)) {
                             $permissions[$rule[0]][$rule[1]] = true;

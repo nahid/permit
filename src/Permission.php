@@ -52,7 +52,6 @@ class Permission
                         }
                     }
 
-
                     if (is_string($permission)) {
                         if ($this->isPermissionDo($permission, $user, $params)) {
                             return true;
@@ -92,7 +91,6 @@ class Permission
                     }
                 }
 
-
                 if (is_string($permission)) {
                     if ($this->isPermissionDo($permission, $user, $params)) {
                         return true;
@@ -131,15 +129,12 @@ class Permission
                     }
                 }
 
-
                 if (is_string($permission)) {
                     if ($this->isPermissionDo($permission, $user, $params)) {
                         return true;
                     }
                 }
             }
-
-
         }
 
         throw new AuthorizationException('Unauthorized');
@@ -215,10 +210,14 @@ class Permission
         $arr_callable = explode('@', $callable);
 
         if (count($arr_callable)>1) {
-            $class = new $arr_callable[0]();
-            $method = $arr_callable[1];
+            if (class_exists($arr_callable[0])) {
+                $class = new $arr_callable[0]();
+                $method = $arr_callable[1];
 
-            return call_user_func_array([$class, $method], $params);
+                if (method_exists($class, $method)) {
+                    return call_user_func_array([$class, $method], $params);
+                }
+            }
         }
 
         return false;
