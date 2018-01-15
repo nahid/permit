@@ -15,7 +15,7 @@ Wait for a while, its download all dependencies.
 
 ## Configurations
 
-After installation complete successfully you have to configure it. First copy these line paste it in `config/app.php` where `providers` array is exists.
+After complete installation then you have to configure it. First copy these line paste it in `config/app.php` where `providers` array are exists.
 
 ```php
 Nahid\Permit\PermitServiceProvider::class,
@@ -36,12 +36,34 @@ php artisan vendor:publish --provider=Nahid\Permit\PermitServiceProvider
 and then go to `config/permit.php` and edit with your desire credentials.
 
 ```php
-return [
-    "users" => [
-        'model' => \App\User::class,
-        'table' => 'users'
-    ]
 
+return [
+    'users' => [
+        'model' => \App\User::class,
+        'table' => 'users',
+        'role_column'   => 'type'
+    ],
+
+    'super_user'    =>  'admin',
+
+    'abilities'   => [
+       // "module"  => ['ability1', 'ability2', 'ability3'=>'policy_module.policy'],
+    ],
+
+
+    'policies'  => [
+        /*'module' => [
+            'update'    => '\App\Permit\Policies\PostPolicy@update',
+        ],*/
+    ],
+
+
+
+    'roles' => [
+        /*'role_name' => [
+            'module.ability',
+        ],*/
+    ]
 ];
 ```
 
@@ -74,7 +96,7 @@ When you run migrate command then we create a table 'permissions' with field 'ro
 add two column 'role' and 'permissions' in `users` table. `role` column store users role and `permissions` column store user specific controls.
 Here `role` column has a relation with `permissions.role_name` column with its controls. `permissions.permission` handle role based control.
 
-We store permissions as JSON format with specific service and controls.
+We store permissions as JSON format with specific service and abilities.
 
 ```json
 {
@@ -84,7 +106,7 @@ We store permissions as JSON format with specific service and controls.
     },
     "post": {
         "create": false,
-        "update": true,
+        "update":"\\App\\Permit\\Policies\\PostPolicy@update",
         "delete": false
     }
 }
@@ -108,12 +130,12 @@ Permit::setUserRole(1, 'admin');
 
 ##### Syntax
 
-`bool Permit::setUserPermission(int $user_id, string $service, array $abilities)`
+`bool Permit::setUserPermissions(int $user_id, string $module, array $abilities)`
 
 ##### Example
 
 ```php
-Permit::setUserPermission(1, 'post', ['create'=>true, 'update'=>true]);
+Permit::setUserPermissions(1, 'post', ['create'=>true, 'update'=>true]);
 ```
 
 
@@ -121,12 +143,12 @@ Permit::setUserPermission(1, 'post', ['create'=>true, 'update'=>true]);
 
 ##### Syntax
 
-`bool Permit::setRolePermission(string $role_name, string $service, array $abilities)`
+`bool Permit::setRolePermissions(string $role_name, string $module, array $abilities)`
 
 ##### Example
 
 ```php
-Permit::setRolePermission('admin', 'post', ['create'=>true, 'update'=>true]);
+Permit::setRolePermissions('admin', 'post', ['create'=>true, 'update'=>true]);
 ```
 
 

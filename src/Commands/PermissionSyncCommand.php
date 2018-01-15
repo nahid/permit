@@ -14,7 +14,7 @@ class PermissionSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permit:permissions {cmd}';
+    protected $signature = 'permit:sync';
 
     /**
      * The console command description.
@@ -24,7 +24,7 @@ class PermissionSyncCommand extends Command
     protected $description = 'Sync permissions to dababase';
 
 
-    protected $permissions;
+    protected $abilities;
     protected $roles;
     protected $policies;
     protected $user;
@@ -38,7 +38,7 @@ class PermissionSyncCommand extends Command
     public function __construct(UserRepository $userRepository, PermissionRepository $permissionRepository)
     {
         parent::__construct();
-        $this->permissions = config('permit.permissions');
+        $this->abilities = config('permit.abilities');
         $this->roles = config('permit.roles');
         $this->policies = config('permit.policies');
         $this->roleColumn = config('permit.users.role_column');
@@ -54,7 +54,6 @@ class PermissionSyncCommand extends Command
      */
     public function handle()
     {
-        $command = $this->argument('cmd');
         $this->syncRolePermissions();
     }
 
@@ -63,7 +62,7 @@ class PermissionSyncCommand extends Command
 
         $data = [];
         $jsonq = new Jsonq();
-        $permission_object = $jsonq->collect($this->permissions);
+        $permission_object = $jsonq->collect($this->abilities);
         foreach($this->roles as $role=>$permission) {
             $permissions = [];
             foreach ($permission as $rules) {

@@ -149,49 +149,6 @@ class Permission
         }
     }
 
-    public function setRolePermission($role_name, $service, $permissions = [])
-    {
-        $role = $this->permission->findBy('role_name', $role_name);
-
-        if ($role) {
-            $permission = json_decode($role->permission, true);
-            foreach ($permissions as $name => $val) {
-                $permission[$service][$name] = $val;
-            }
-
-            $role->update(['permission' => $permission]);
-        } else {
-            $row = ['role_name' => $role_name, 'permission' => []];
-            foreach ($permissions as $name => $val) {
-                $row['permission'][$service][$name] = $val;
-            }
-
-            //dd($row);
-
-            $this->permission->create($row);
-        }
-
-        return true;
-    }
-
-    public function setUserPermission($user_id, $service, $permissions = [])
-    {
-        $user = $this->user->find($user_id);
-
-        if ($user) {
-            $permission = json_decode($user->permissions, true);
-            foreach ($permissions as $name => $val) {
-                $permission[$service][$name] = $val;
-            }
-
-            $this->userModel->unguard();
-            $this->user->update($user_id, ['permissions' => $permission]);
-            $this->userModel->reguard();
-        }
-
-        return true;
-    }
-
     public function setUserRole($user_id, $role_name)
     {
         $user = $this->user->find($user_id);
@@ -200,9 +157,74 @@ class Permission
             $this->userModel->unguard();
             $this->user->update($user_id, [$this->config->get('permit.users.role_column') => $role_name]);
             $this->userModel->reguard();
-
             return true;
         }
+    }
+
+    protected function fetchPolicy($path)
+    {
+        $policies = $this->config->get('permit.policies');
+        $policy_str = explode('.', $path);
+        $policy = '';
+        if (isset($policies[$policy_str[0]][$policy_str[1]])) {
+            $policy = $policies[$policy_str[0]][$policy_str[1]];
+        }
+
+        return $policy;
+    }
+
+    public function setUserPermissions($user_id, $module, $abilities = [])
+    {
+
+        $user = $this->user->find($user_id);
+        if ($user) {
+            $permission = json_decode($user->permissions, true);
+            foreach ($abilities as $name => $val) {
+                if (is_bool($val)) {
+                    $permission[$module][$name] = $val;
+                } else if (is_string($val)) {
+                    $policy = $this->fetchPolicy($val);
+                    $permission[$module][$name] = $policy;
+                }
+
+            }
+
+            $this->userModel->unguard();
+            $this->user->update($user_id, ['permissions' => json_encode($permission)]);
+            $this->userModel->reguard();
+        }
+        return true;
+    }
+
+    public function setRolePermissions($role_name, $module, $abilities = [])
+    {
+        $role = $this->permission->findBy('role_name', $role_name);
+        if ($role) {
+            $permission = json_decode($role->permission, true);
+            foreach ($abilities as $name => $val) {
+                if (is_bool($val)) {
+                    $permission[$module][$name] = $val;
+                } else if (is_string($val)) {
+                    $policy = $this->fetchPolicy($val);
+                    $permission[$module][$name] = $policy;
+                }
+
+            }
+            $role->update(['permission' => $permission]);
+        } else {
+            $row = ['role_name' => $role_name, 'permission' => []];
+            foreach ($abilities as $name => $val) {
+                if (is_bool($val)) {
+                    $row['permission'][$module][$name] = $val;
+                } else if (is_string($val)) {
+                    $policy = $this->fetchPolicy($val);
+                    $row['permission'][$module][$name] = $policy;
+                }
+            }
+            //dd($row);
+            $this->permission->create($row);
+        }
+        return true;
     }
 
     protected function callPolicy($callable, $params = [])

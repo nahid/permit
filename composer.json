@@ -26,5 +26,16 @@
             "email": "nahid.dns@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nahid\\Permit\\PermitServiceProvider"
+            ],
+            "aliases": {
+                "Permit": "Nahid\\Permit\\Facades\\Permit"
+            }
+        }
+    }
 }

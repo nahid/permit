@@ -4,31 +4,29 @@ return [
     'users' => [
         'model' => \App\User::class,
         'table' => 'users',
-        'role_column'   => 'role'
+        'role_column'   => 'type'
     ],
+
     'super_user'    =>  'admin',
 
-    'permissions'   => [
-        "post"  => ['create', 'update'=>'post.update', 'delete'],
-        "user"  => ['create', 'update', 'delete'],
+    'abilities'   => [
+       // "module"  => ['ability1', 'ability2', 'ability3'=>'policy_module.policy'],
     ],
 
-    'roles' => [
-        'manager' => [
-            'post.*'
-        ],
-        'supervisor'    => [
-            'post.create',
-            'post.update',
-            'user.create',
-            'user.update',
-        ]
-    ],
 
     'policies'  => [
-        'post'  => [
-            'update'    => '\App\Policies\PostPolicy@update'
-        ]
+        /*'module' => [
+            'update'    => '\App\Permit\Policies\PostPolicy@update',
+        ],*/
+    ],
+
+
+
+    'roles' => [
+        /*'role_name' => [
+            'module.ability',
+        ],*/
     ]
+
 
 ];
