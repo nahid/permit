@@ -295,7 +295,7 @@ and then others parameter will pass.
 
 You can use others method like `roleCan`, 'userCan', all helper functions and blade directives as same procedure.
 
-Sometimes you have to check if then given user able to perform for any ability. so we make it easy. lets see
+Sometimes you have to check if the given user able to perform for any ability. so we make it easy. lets see
 
 ```php
 Permit::allows(auth()->user(), ['post.create', 'comment.create']);
@@ -307,6 +307,9 @@ But if your ability was bind with a policy and its required paramters, then you 
 $comment = Comment::find(1);
 Permit::allows(auth()->user(), ['post.create', 'comment.update'=>[$comment], 'comment.create']);
 ```
+
+Here if the given user is assigned to any one abilities then its allows.
+
 ### Commands
 
 We provide several command for make user experience better
