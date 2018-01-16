@@ -39,4 +39,9 @@ abstract class BaseRepository
         return $this->model->insert($data);
     }
 
+    public function getModel()
+    {
+        return $this->model;
+    }
+
 }

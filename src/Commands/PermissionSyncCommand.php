@@ -21,7 +21,7 @@ class PermissionSyncCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Sync permissions to dababase';
+    protected $description = 'Sync permissions to database';
 
 
     protected $abilities;
