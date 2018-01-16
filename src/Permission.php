@@ -249,7 +249,7 @@ class Permission
     {
         $parameters = [$user];
 
-        $permit = explode(':', $permission);
+        $permit = explode('.', $permission);
 
         if (count($permit) == 2) {
             $auth_permissions = (array) $this->authPermissions->node($permit[0])->get(false);
