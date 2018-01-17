@@ -9,15 +9,25 @@ use Nahid\Permit\Users\UserRepository;
 class RemovePermissionCommand extends Command
 {
 
+    /**
+     * @var PermissionRepository
+     */
     protected $permission;
+
+    /**
+     * @var UserRepository
+     */
     protected $user;
+
+    /**
+     * @var
+     */
     protected $userModel;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-//    protected $signature = 'permit:user {id} {action} {permission}';
     protected $signature = 'permit:remove {type : two types 1. user 2. role} {needle : desire permission entity} {permission : permission name}';
 
     /**
@@ -28,9 +38,11 @@ class RemovePermissionCommand extends Command
     protected $description = 'Remove user or role permission';
 
 
-
     /**
-     * Create a new command instance.
+     * RemovePermissionCommand constructor.
+     *
+     * @param PermissionRepository $permissionRepository
+     * @param UserRepository       $userRepository
      */
     public function __construct(PermissionRepository $permissionRepository, UserRepository $userRepository)
     {
@@ -68,7 +80,11 @@ class RemovePermissionCommand extends Command
     }
 
 
-
+    /**
+     * remove permission from an user
+     *
+     * @return bool
+     */
     public function removeUserPermission()
     {
         $user_id = $this->argument('needle');
@@ -95,6 +111,11 @@ class RemovePermissionCommand extends Command
     }
 
 
+    /**
+     * remove permission from a role
+     *
+     * @return bool
+     */
     public function removeRolePermission()
     {
         $role_name = $this->argument('needle');
@@ -119,5 +140,4 @@ class RemovePermissionCommand extends Command
         $this->error('No role found');
         return false;
     }
-
 }

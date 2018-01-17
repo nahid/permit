@@ -5,10 +5,12 @@ namespace Nahid\Permit\Commands;
 use Illuminate\Console\Command;
 use Nahid\Permit\Permissions\PermissionRepository;
 
-
 class CreateRoleCommand extends Command
 {
 
+    /**
+     * @var PermissionRepository
+     */
     protected $permission;
     /**
      * The name and signature of the console command.
@@ -25,9 +27,10 @@ class CreateRoleCommand extends Command
     protected $description = 'Create or delete role';
 
 
-
     /**
-     * Create a new command instance.
+     * CreateRoleCommand constructor.
+     *
+     * @param PermissionRepository $permissionRepository
      */
     public function __construct(PermissionRepository $permissionRepository)
     {
@@ -74,6 +77,4 @@ class CreateRoleCommand extends Command
 
         $this->error('Bad arguments');
     }
-
-
 }

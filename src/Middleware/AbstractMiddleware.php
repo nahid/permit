@@ -6,6 +6,9 @@ use Closure;
 
 abstract class AbstractMiddleware
 {
+    /**
+     * @var string
+     */
     protected $redirectTo = '/';
 
     /**

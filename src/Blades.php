@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Blade;
 
 class Blades
 {
+    /**
+     * compile blade directives
+     */
     public function runCompiles()
     {
         Blade::directive('userCan', function ($expression) {

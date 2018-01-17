@@ -9,15 +9,26 @@ use Nahid\Permit\Users\UserRepository;
 class AddPermissionCommand extends Command
 {
 
+    /**
+     * @var PermissionRepository
+     */
     protected $permission;
+
+    /**
+     * @var UserRepository
+     */
     protected $user;
+
+    /**
+     * auth user model
+     * @var
+     */
     protected $userModel;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-//    protected $signature = 'permit:user {id} {action} {permission}';
     protected $signature = 'permit:add {type : two types 1. user 2. role} {needle : desire permission entity} {permission : permission name}';
 
     /**
@@ -28,9 +39,11 @@ class AddPermissionCommand extends Command
     protected $description = 'Add permission to user or role';
 
 
-
     /**
-     * Create a new command instance.
+     * AddPermissionCommand constructor.
+     *
+     * @param PermissionRepository $permissionRepository
+     * @param UserRepository       $userRepository
      */
     public function __construct(PermissionRepository $permissionRepository, UserRepository $userRepository)
     {
@@ -68,10 +81,16 @@ class AddPermissionCommand extends Command
     }
 
 
-    protected function fetchPolicy($path)
+    /**
+     * fetch policy by given ability
+     *
+     * @param $ability
+     * @return string
+     */
+    protected function fetchPolicy($ability)
     {
         $policies = config('permit.policies');
-        $policy_str = explode('.', $path);
+        $policy_str = explode('.', $ability);
         $policy = '';
         if (isset($policies[$policy_str[0]][$policy_str[1]])) {
             $policy = $policies[$policy_str[0]][$policy_str[1]];
@@ -80,6 +99,11 @@ class AddPermissionCommand extends Command
         return $policy;
     }
 
+    /**
+     * add new ability to an user
+     *
+     * @return bool
+     */
     public function addUserPermission()
     {
         $user_id = $this->argument('needle');
@@ -99,7 +123,7 @@ class AddPermissionCommand extends Command
             $permission = json_decode($user->permissions, true);
             if (in_array($prms[1], $mod_perms)) {
                 $permission[$module][$prms[1]] = true;
-            } else if (array_key_exists($prms[1], $mod_perms)) {
+            } elseif (array_key_exists($prms[1], $mod_perms)) {
                 $policy = $this->fetchPolicy($mod_perms[$prms[1]]);
                 $permission[$module][$prms[1]] = $policy;
             }
@@ -113,6 +137,11 @@ class AddPermissionCommand extends Command
         return false;
     }
 
+    /**
+     * add new ability to a role
+     *
+     * @return bool
+     */
     public function addRolePermission()
     {
         $role_name = $this->argument('needle');
@@ -132,7 +161,7 @@ class AddPermissionCommand extends Command
             $permission = json_decode($role->permission, true);
             if (in_array($prms[1], $mod_perms)) {
                 $permission[$module][$prms[1]] = true;
-            } else if (array_key_exists($prms[1], $mod_perms)) {
+            } elseif (array_key_exists($prms[1], $mod_perms)) {
                 $policy = $this->fetchPolicy($mod_perms[$prms[1]]);
                 $permission[$module][$prms[1]] = $policy;
             }
@@ -145,22 +174,4 @@ class AddPermissionCommand extends Command
         $this->error('No role found');
         return false;
     }
-
-    public function delPermission($user, $mod_perms, $prms = [])
-    {
-        $module = $prms[0];
-
-        $permission = json_decode($user->permissions, true);
-        if (isset($permission[$module][$prms[1]])) {
-            unset($permission[$module][$prms[1]]);
-        }
-
-
-        $this->userModel->unguard();
-        $this->user->update($user->id, ['permissions' => json_encode($permission)]);
-        $this->userModel->reguard();
-
-        return true;
-    }
-
 }

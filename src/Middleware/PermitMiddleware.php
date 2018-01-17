@@ -4,6 +4,13 @@ namespace Nahid\Permit\Middleware;
 
 class PermitMiddleware extends AbstractMiddleware
 {
+    /**
+     * make a permission for middleware
+     *
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     */
     protected function permission($permission, $params = [])
     {
         if (auth()->check()) {

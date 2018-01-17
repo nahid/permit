@@ -9,7 +9,14 @@ use Nahid\Permit\Users\UserRepository;
 class FetchPermissionsCommand extends Command
 {
 
+    /**
+     * @var PermissionRepository
+     */
     protected $permission;
+
+    /**
+     * @var UserRepository
+     */
     protected $user;
     /**
      * The name and signature of the console command.
@@ -26,9 +33,11 @@ class FetchPermissionsCommand extends Command
     protected $description = 'Get permissions list for user and role';
 
 
-
     /**
-     * Create a new command instance.
+     * FetchPermissionsCommand constructor.
+     *
+     * @param PermissionRepository $permissionRepository
+     * @param UserRepository       $userRepository
      */
     public function __construct(PermissionRepository $permissionRepository, UserRepository $userRepository)
     {
@@ -56,6 +65,9 @@ class FetchPermissionsCommand extends Command
         }
     }
 
+    /**
+     * get user all permission
+     */
     public function getUserPermissions()
     {
         $headers = ['Module', 'Ability', 'Permission'];
@@ -70,12 +82,12 @@ class FetchPermissionsCommand extends Command
             }
 
             foreach ($permissions as $module=>$permission) {
-                foreach($permission as $ability=>$perm) {
+                foreach ($permission as $ability=>$perm) {
                     $vals = [$module, $ability];
                     if (is_bool($perm)) {
                         if ($perm) {
                             $vals[] = 'true';
-                        }else {
+                        } else {
                             $vals[] = 'false';
                         }
                     }
@@ -92,6 +104,9 @@ class FetchPermissionsCommand extends Command
         }
     }
 
+    /**
+     * get role all permission
+     */
     public function getRolePermissions()
     {
         $headers = ['Module', 'Ability', 'Permission'];
@@ -108,12 +123,12 @@ class FetchPermissionsCommand extends Command
             }
 
             foreach ($permissions as $module=>$permission) {
-                foreach($permission as $ability=>$perm) {
+                foreach ($permission as $ability=>$perm) {
                     $vals = [$module, $ability];
                     if (is_bool($perm)) {
                         if ($perm) {
                             $vals[] = 'true';
-                        }else {
+                        } else {
                             $vals[] = 'false';
                         }
                     }
@@ -129,5 +144,4 @@ class FetchPermissionsCommand extends Command
             $this->error("No role found!");
         }
     }
-
 }

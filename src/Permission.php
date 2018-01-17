@@ -10,16 +10,62 @@ use Nahid\Permit\Users\UserRepository;
 
 class Permission
 {
+    /**
+     * super user role
+     * @var mixed
+     */
     protected $superUser;
+
+    /**
+     * user table role column
+     * @var mixed
+     */
     protected $roleColumn;
+
+    /**
+     * @var Repository
+     */
     protected $config;
+
+    /**
+     * @var PermissionRepository
+     */
     protected $permission;
+
+    /**
+     * user model namespace
+     * @var mixed
+     */
     protected $userModelNamespace;
+
+    /**
+     * auth user model name
+     * @var
+     */
     protected $userModel;
+
+    /**
+     * @var UserRepository
+     */
     protected $user;
+
+    /**
+     * @var Jsonq
+     */
     protected $json;
+
+    /**
+     * @var array
+     */
     protected $authPermissions = [];
 
+    /**
+     * Permission constructor.
+     *
+     * @param Repository           $config
+     * @param PermissionRepository $permission
+     * @param UserRepository       $user
+     */
     public function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
     {
         $this->config = $config;
@@ -33,6 +79,15 @@ class Permission
         $this->json = new Jsonq();
     }
 
+    /**
+     * check the given user is allows for the given permission
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     * @throws AuthorizationException
+     */
     public function userAllows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
@@ -45,7 +100,6 @@ class Permission
                 $this->authPermissions = $this->json->collect($abilities);
 
                 if (!is_null($user->permission)) {
-
                     if (is_array($permission)) {
                         if ($this->hasOnePermission($permission, $user)) {
                             return true;
@@ -64,6 +118,14 @@ class Permission
         throw new AuthorizationException('Unauthorized');
     }
 
+    /**
+     * Its an alias of userAllows, but its return bool instead of Exception
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     */
     public function userCan($user, $permission, $params = [])
     {
         try {
@@ -73,6 +135,15 @@ class Permission
         }
     }
 
+    /**
+     * check the given user's role is allows for the given permission
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     * @throws AuthorizationException
+     */
     public function roleAllows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
@@ -84,7 +155,6 @@ class Permission
             $this->authPermissions = $this->json->collect($abilities);
 
             if (!is_null($user->permission)) {
-
                 if (is_array($permission)) {
                     if ($this->hasOnePermission($permission, $user)) {
                         return true;
@@ -102,6 +172,14 @@ class Permission
         throw new AuthorizationException('Unauthorized');
     }
 
+    /**
+     * its an alias of roleAllows, but its return bool instead of Exception
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     */
     public function roleCan($user, $permission, $params = [])
     {
         try {
@@ -111,10 +189,19 @@ class Permission
         }
     }
 
+    /**
+     * check the given user are allows for then given permission.
+     * here permission check for user specific permissions and role based permissions
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     * @throws AuthorizationException
+     */
     public function allows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
-
             $user_permissions = json_decode($user->permissions, true);
             $role_permissions = json_decode($user->permission->permission, true);
             $abilities = array_merge($role_permissions, $user_permissions);
@@ -122,7 +209,6 @@ class Permission
             $this->authPermissions = $this->json->collect($abilities);
 
             if (count($abilities) > 0) {
-
                 if (is_array($permission)) {
                     if ($this->hasOnePermission($permission, $user)) {
                         return true;
@@ -140,6 +226,14 @@ class Permission
         throw new AuthorizationException('Unauthorized');
     }
 
+    /**
+     * its an alias of allows, but its return bool instead of Exception
+     *
+     * @param       $user
+     * @param       $permission
+     * @param array $params
+     * @return bool
+     */
     public function can($user, $permission, $params = [])
     {
         try {
@@ -149,6 +243,13 @@ class Permission
         }
     }
 
+    /**
+     * this method is set user role for given user id
+     *
+     * @param $user_id
+     * @param $role_name
+     * @return bool
+     */
     public function setUserRole($user_id, $role_name)
     {
         $user = $this->user->find($user_id);
@@ -161,10 +262,16 @@ class Permission
         }
     }
 
-    protected function fetchPolicy($path)
+    /**
+     * fetch policy for given permission
+     *
+     * @param $ability
+     * @return string
+     */
+    protected function fetchPolicy($ability)
     {
         $policies = $this->config->get('permit.policies');
-        $policy_str = explode('.', $path);
+        $policy_str = explode('.', $ability);
         $policy = '';
         if (isset($policies[$policy_str[0]][$policy_str[1]])) {
             $policy = $policies[$policy_str[0]][$policy_str[1]];
@@ -173,20 +280,26 @@ class Permission
         return $policy;
     }
 
+    /**
+     * set permissions for given user
+     *
+     * @param       $user_id
+     * @param       $module
+     * @param array $abilities
+     * @return bool
+     */
     public function setUserPermissions($user_id, $module, $abilities = [])
     {
-
         $user = $this->user->find($user_id);
         if ($user) {
             $permission = json_decode($user->permissions, true);
             foreach ($abilities as $name => $val) {
                 if (is_bool($val)) {
                     $permission[$module][$name] = $val;
-                } else if (is_string($val)) {
+                } elseif (is_string($val)) {
                     $policy = $this->fetchPolicy($val);
                     $permission[$module][$name] = $policy;
                 }
-
             }
 
             $this->userModel->unguard();
@@ -196,6 +309,14 @@ class Permission
         return true;
     }
 
+    /**
+     * set permission for given role
+     *
+     * @param       $role_name
+     * @param       $module
+     * @param array $abilities
+     * @return bool
+     */
     public function setRolePermissions($role_name, $module, $abilities = [])
     {
         $role = $this->permission->findBy('role_name', $role_name);
@@ -204,11 +325,10 @@ class Permission
             foreach ($abilities as $name => $val) {
                 if (is_bool($val)) {
                     $permission[$module][$name] = $val;
-                } else if (is_string($val)) {
+                } elseif (is_string($val)) {
                     $policy = $this->fetchPolicy($val);
                     $permission[$module][$name] = $policy;
                 }
-
             }
             $role->update(['permission' => $permission]);
         } else {
@@ -216,7 +336,7 @@ class Permission
             foreach ($abilities as $name => $val) {
                 if (is_bool($val)) {
                     $row['permission'][$module][$name] = $val;
-                } else if (is_string($val)) {
+                } elseif (is_string($val)) {
                     $policy = $this->fetchPolicy($val);
                     $row['permission'][$module][$name] = $policy;
                 }
@@ -227,6 +347,13 @@ class Permission
         return true;
     }
 
+    /**
+     * execute policy method with its parameters
+     *
+     * @param       $callable
+     * @param array $params
+     * @return bool|mixed
+     */
     protected function callPolicy($callable, $params = [])
     {
         $arr_callable = explode('@', $callable);
@@ -245,6 +372,14 @@ class Permission
         return false;
     }
 
+    /**
+     * check this permission for the given user is allowed
+     *
+     * @param       $permission
+     * @param       $user
+     * @param array $params
+     * @return bool|mixed
+     */
     protected function isPermissionDo($permission, $user, $params = [])
     {
         $parameters = [$user];
@@ -265,7 +400,7 @@ class Permission
             if (isset($auth_permissions[$permit[1]])) {
                 if ($auth_permissions[$permit[1]] === true) {
                     return true;
-                } else if (is_string($auth_permissions[$permit[1]])) {
+                } elseif (is_string($auth_permissions[$permit[1]])) {
                     return $this->callPolicy($auth_permissions[$permit[1]], $parameters);
                 }
             }
@@ -273,6 +408,13 @@ class Permission
         return false;
     }
 
+    /**
+     * check the given users has attest one permission
+     *
+     * @param array $permissions
+     * @param       $user
+     * @return bool
+     */
     protected function hasOnePermission($permissions = [], $user)
     {
         foreach ($permissions as $key => $value) {
