@@ -96,7 +96,7 @@ class Permission
             }
 
             if (!empty($user->permissions)) {
-                $abilities = json_decode($user->permissions);
+                $abilities = json_to_array($user->permissions);
                 $this->authPermissions = $this->json->collect($abilities);
 
                 if (!is_null($user->permission)) {
@@ -151,7 +151,7 @@ class Permission
                 return true;
             }
 
-            $abilities = json_decode($user->permission->permission);
+            $abilities = json_to_array($user->permission->permission);
             $this->authPermissions = $this->json->collect($abilities);
 
             if (!is_null($user->permission)) {
@@ -202,8 +202,8 @@ class Permission
     public function allows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
-            $user_permissions = json_decode($user->permissions, true);
-            $role_permissions = json_decode($user->permission->permission, true);
+            $user_permissions = json_to_array($user->permissions);
+            $role_permissions = json_to_array($user->permission->permission);
             $abilities = array_merge($role_permissions, $user_permissions);
 
             $this->authPermissions = $this->json->collect($abilities);
@@ -292,7 +292,7 @@ class Permission
     {
         $user = $this->user->find($user_id);
         if ($user) {
-            $permission = json_decode($user->permissions, true);
+            $permission = json_to_array($user->permissions);
             foreach ($abilities as $name => $val) {
                 if (is_bool($val)) {
                     $permission[$module][$name] = $val;
@@ -321,7 +321,7 @@ class Permission
     {
         $role = $this->permission->findBy('role_name', $role_name);
         if ($role) {
-            $permission = json_decode($role->permission, true);
+            $permission = json_to_array($role->permission);
             foreach ($abilities as $name => $val) {
                 if (is_bool($val)) {
                     $permission[$module][$name] = $val;

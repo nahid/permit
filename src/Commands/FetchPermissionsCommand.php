@@ -75,7 +75,7 @@ class FetchPermissionsCommand extends Command
         $user = $this->user->find($this->argument('needle'));
         $data = [];
         if ($user) {
-            $permissions = json_decode($user->permissions, true);
+            $permissions = json_to_array($user->permissions);
 
             if (!is_array($permissions)) {
                 $permissions = [];
@@ -116,7 +116,7 @@ class FetchPermissionsCommand extends Command
         $role = $this->permission->findBy('role_name', $role_name);
         $data = [];
         if ($role) {
-            $permissions = json_decode($role->permission, true);
+            $permissions = json_to_array($role->permission);
 
             if (!is_array($permissions)) {
                 $permissions = [];

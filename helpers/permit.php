@@ -53,3 +53,16 @@ if (!function_exists('allows')) {
         return $permit->allows($user, $permission, $params);
     }
 }
+
+
+if (!function_exists('json_to_array')) {
+    function json_to_array($json)
+    {
+        $json_out = json_decode($json, true);
+        if (is_string($json_out) || is_null($json_out)) {
+            return [];
+        }
+
+        return $json_out;
+    }
+}

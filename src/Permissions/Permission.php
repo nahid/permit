@@ -17,7 +17,7 @@ class Permission extends Model
 
     /*public function getPermissionsAttribute()
     {
-        return json_decode($this->attributes['permission'], true);
+        return json_to_array($this->attributes['permission']);
     }*/
 
     public function setPermissionAttribute($value)

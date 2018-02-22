@@ -120,7 +120,7 @@ class AddPermissionCommand extends Command
         $user = $this->user->find($user_id);
 
         if ($user) {
-            $permission = json_decode($user->permissions, true);
+            $permission = json_to_array($user->permissions);
             if (in_array($prms[1], $mod_perms)) {
                 $permission[$module][$prms[1]] = true;
             } elseif (array_key_exists($prms[1], $mod_perms)) {
@@ -158,7 +158,7 @@ class AddPermissionCommand extends Command
         $role = $this->permission->findBy('role_name', $role_name);
 
         if ($role) {
-            $permission = json_decode($role->permission, true);
+            $permission = json_to_array($role->permission);
             if (in_array($prms[1], $mod_perms)) {
                 $permission[$module][$prms[1]] = true;
             } elseif (array_key_exists($prms[1], $mod_perms)) {

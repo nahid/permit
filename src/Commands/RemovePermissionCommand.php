@@ -95,7 +95,7 @@ class RemovePermissionCommand extends Command
         $user = $this->user->find($user_id);
 
         if ($user) {
-            $permission = json_decode($user->permissions, true);
+            $permission = json_to_array($user->permissions);
             if (isset($permission[$module][$prms[1]])) {
                 unset($permission[$module][$prms[1]]);
             }
@@ -126,7 +126,7 @@ class RemovePermissionCommand extends Command
         $role = $this->permission->findBy('role_name', $role_name);
 
         if ($role) {
-            $permission = json_decode($role->permission, true);
+            $permission = json_to_array($role->permission);
             if (isset($permission[$module][$prms[1]])) {
                 unset($permission[$module][$prms[1]]);
             }
