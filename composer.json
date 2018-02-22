@@ -1,6 +1,7 @@
 {
     "name": "nahid/permit",
     "description": "Permit is a laravel ACL and authorization package",
+    "keywords": ["acl", "permit", "authorization"],
     "type": "library",
     "require": {
         "php": ">=5.5.9",
