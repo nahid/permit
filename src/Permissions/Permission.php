@@ -34,4 +34,5 @@ class Permission extends Model
     {
         return json_to_array($this->permission);
     }
+
 }

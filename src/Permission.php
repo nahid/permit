@@ -457,4 +457,25 @@ class Permission
 
         return null;
     }
+
+    /**
+     * get all roles
+     *
+     * @return mixed
+     */
+    public function roles()
+    {
+        return $this->permission->getRoles();
+    }
+
+    /**
+     * getting a single role
+     *
+     * @param $role
+     * @return mixed
+     */
+    public function role($role)
+    {
+        return $this->permission->getRole($role);
+    }
 }

@@ -44,4 +44,5 @@ trait Permitable
     {
         return $this->belongsTo('Nahid\Permit\Permissions\Permission', config('permit.users.role_column'), 'role_name');
     }
+
 }

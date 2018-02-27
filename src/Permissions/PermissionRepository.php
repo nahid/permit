@@ -32,4 +32,26 @@ class PermissionRepository extends BaseRepository
 
         return $this->model->insert($data);
     }
+
+
+    /**
+     * get all roles
+     *
+     * @return mixed
+     */
+    public function getRoles()
+    {
+        return $this->model->all();
+    }
+
+    /**
+     * getting a single role
+     *
+     * @param $role
+     * @return mixed
+     */
+    public function getRole($role)
+    {
+        return $this->model->where('role_name', $role)->first();
+    }
 }
