@@ -26,6 +26,16 @@ trait Permitable
     }
 
     /**
+     * accessor for getting json as array
+     *
+     * @return array|mixed
+     */
+    public function getPermissionArrayAttribute()
+    {
+        return json_to_array($this->permissions);
+    }
+
+    /**
      * relationship for permission
      *
      * @return mixed

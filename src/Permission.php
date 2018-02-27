@@ -435,4 +435,26 @@ class Permission
 
         return false;
     }
+
+
+    /**
+     * getting all abilities from config
+     *
+     * @param null $module
+     * @return null
+     */
+    public function getAbilities($module = null)
+    {
+        $abilities_arr = $this->config->get('permit.abilities');
+
+        if (is_null($module)) {
+            return $abilities_arr;
+        }
+
+        if (isset($abilities_arr[$module])) {
+            return $abilities_arr[$module];
+        }
+
+        return null;
+    }
 }

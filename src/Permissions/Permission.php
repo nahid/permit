@@ -24,4 +24,14 @@ class Permission extends Model
     {
         return $this->attributes['permission'] = json_encode($value);
     }
+
+    /**
+     * accessor for getting permissions
+     *
+     * @return array|mixed
+     */
+    public function getPermissionArrayAttribute()
+    {
+        return json_to_array($this->permission);
+    }
 }
