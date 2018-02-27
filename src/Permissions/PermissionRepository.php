@@ -7,32 +7,31 @@ use Nahid\Permit\BaseRepository;
 class PermissionRepository extends BaseRepository
 {
     /**
-     * take model namespace
-     *
-     * @return string
-     */
-    protected function setModel()
-    {
-        return 'Nahid\Permit\Permissions\Permission';
-    }
-
-    /**
      * sync role permissions
      *
      * @param       $role
      * @param array $data
      * @return mixed
      */
-    public function syncRolePermissions($role, array $data)
+    public function syncRolePermissions($role, array $data, $roles)
     {
         $record = $this->model->where('role_name', $role);
+        $status = false;
         if ($record->exists()) {
-            return $record->update($data);
+            $status = true;
+            $record->update($data);
+        } else {
+            $status = $this->model->insert($data);
         }
 
-        return $this->model->insert($data);
+        $this->deleteRoles($roles);
+        return $status;
     }
 
+    public function deleteRoles($roles)
+    {
+        return $this->model->whereIn('role_name', $roles)->delete();
+    }
 
     /**
      * get all roles
@@ -53,5 +52,15 @@ class PermissionRepository extends BaseRepository
     public function getRole($role)
     {
         return $this->model->where('role_name', $role)->first();
+    }
+
+    /**
+     * take model namespace
+     *
+     * @return string
+     */
+    protected function setModel()
+    {
+        return 'Nahid\Permit\Permissions\Permission';
     }
 }

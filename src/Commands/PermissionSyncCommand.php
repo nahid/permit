@@ -14,7 +14,7 @@ class PermissionSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permit:sync';
+    protected $signature = 'permit:sync {--Y|yes}';
 
     /**
      * The console command description.
@@ -144,20 +144,59 @@ class PermissionSyncCommand extends Command
             $data[] = ['role_name'=>$role, 'permission'=>json_encode($permissions)];
         }
 
-        $db = app('db');
+        $roles = $this->getUnusedRoles();
+        $opt = $this->option("yes");
+
         if (is_array($data)) {
-            if ($this->confirm('Do you wish to sync with existing permissions?')) {
-                $db->beginTransaction();
-                foreach ($data as $d) {
-                    if (!$this->permission->syncRolePermissions($d['role_name'], $d)) {
-                        $db->rollback();
-                    }
+            if ($opt) {
+                $this->migrate($data, $roles);
+            }else {
+                if ($this->confirm('Do you wish to sync with existing permissions?')) {
+                    $this->migrate($data, $roles);
+                } else {
+                    $this->error('Process Canceled!');
                 }
-                $db->commit();
-                $this->info('Permissions Synced!');
-            } else {
-                $this->error('Process Canceled!');
+            }
+
+        }
+    }
+
+    /**
+     * migrate roles to database
+     *
+     * @param $data
+     * @param $roles
+     */
+    protected function migrate($data, $roles)
+    {
+        $db = app('db');
+        $db->beginTransaction();
+        foreach ($data as $d) {
+            if (!$this->permission->syncRolePermissions($d['role_name'], $d, $roles)) {
+                $db->rollback();
             }
         }
+        $db->commit();
+        $this->info('Permissions Synced!');
+    }
+
+    /**
+     * get all unused roles
+     *
+     * @return array
+     */
+    protected function getUnusedRoles()
+    {
+        $current_roles = $this->permission->getRoles()->pluck(['role_name'])->toArray();
+        $new_roles = array_keys($this->roles);
+        $roles = [];
+
+        foreach ($current_roles as $role) {
+            if (!in_array($role, $new_roles)) {
+                $roles[] = $role;
+            }
+        }
+
+        return $roles;
     }
 }
