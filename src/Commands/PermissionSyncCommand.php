@@ -174,6 +174,9 @@ class PermissionSyncCommand extends Command
         foreach ($data as $d) {
             if (!$this->permission->syncRolePermissions($d['role_name'], $d, $roles)) {
                 $db->rollback();
+                $this->error('Permissions Synced Failed!');
+                return false;
+
             }
         }
         $db->commit();
