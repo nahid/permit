@@ -447,15 +447,47 @@ class Permission
     {
         $abilities_arr = $this->config->get('permit.abilities');
 
+        $abilities = null;
         if (is_null($module)) {
-            return $abilities_arr;
+            $abilities = $abilities_arr;
         }
 
         if (isset($abilities_arr[$module])) {
-            return $abilities_arr[$module];
+            $abilities = $abilities_arr[$module];
         }
 
-        return null;
+        return $this->parseAbilities($abilities);
+    }
+
+    /**
+     * parseAbilities is parse for policy
+     *
+     * @param $modules
+     * @return array
+     */
+    protected function parseAbilities($modules)
+    {
+        $policies = $this->config->get('permit.policies');
+        $new_abilities = [];
+
+        foreach ($modules as $module=>$abilities) {
+            foreach ($abilities as $key => $ability) {
+                if (!isset($new_abilities[$module])) {
+                    $new_abilities[$module] = [];
+                }
+                if (is_int($key)) {
+                    $new_abilities[$module][] = $ability;
+                } elseif (is_string($key)) {
+                    $policies_name = explode('.', $ability);
+                    if (count($policies_name)==2) {
+                        $new_abilities[$module][$ability] = $policies[$policies_name[0]][$policies_name[1]];
+                    }
+                }
+            }
+
+        }
+
+        return $new_abilities;
     }
 
     /**
