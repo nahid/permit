@@ -480,7 +480,7 @@ class Permission
                 } elseif (is_string($key)) {
                     $policies_name = explode('.', $ability);
                     if (count($policies_name)==2) {
-                        $new_abilities[$module][$ability] = $policies[$policies_name[0]][$policies_name[1]];
+                        $new_abilities[$module][$key] = $policies[$policies_name[0]][$policies_name[1]];
                     }
                 }
             }
