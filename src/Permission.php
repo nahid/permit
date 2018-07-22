@@ -57,7 +57,7 @@ class Permission
     /**
      * @var array
      */
-    protected $authPermissions = [];
+    protected $abilities = [];
 
     /**
      * Permission constructor.
@@ -98,7 +98,7 @@ class Permission
 
             if (!empty($user->permissions)) {
                 $abilities = json_to_array($user->permissions);
-                $this->authPermissions = $this->json->collect($abilities);
+                $this->abilities = $abilities;
 
                 if (!is_null($user->permission)) {
                     if (is_array($permission)) {
@@ -154,7 +154,7 @@ class Permission
             }
 
             $abilities = json_to_array($user->permission->permission);
-            $this->authPermissions = $this->json->collect($abilities);
+            $this->abilities = $abilities;
 
             if (!is_null($user->permission)) {
                 if (is_array($permission)) {
@@ -209,7 +209,7 @@ class Permission
             $role_permissions = json_to_array($user->permission->permission);
             $abilities = array_merge($role_permissions, $user_permissions);
 
-            $this->authPermissions = $this->json->collect($abilities);
+            $this->abilities = $abilities;
 
             if (count($abilities) > 0) {
                 if (is_array($permission)) {
@@ -383,7 +383,7 @@ class Permission
             return false;
         }
 
-        $auth_permission = $this->authPermissions->from($permission)->get();
+        $auth_permission = $this->json->collect($this->abilities)->from($permission)->get();
 
         foreach ($params as $param) {
             array_push($parameters, $param);
