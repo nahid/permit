@@ -273,14 +273,7 @@ class Permission
      */
     protected function fetchPolicy($ability)
     {
-        $policies = $this->config->get('permit.policies');
-        $policy_str = explode('.', $ability);
-        $policy = '';
-        if (isset($policies[$policy_str[0]][$policy_str[1]])) {
-            $policy = $policies[$policy_str[0]][$policy_str[1]];
-        }
-
-        return $policy;
+        return $ability;
     }
 
     /**
