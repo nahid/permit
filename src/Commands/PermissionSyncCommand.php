@@ -101,9 +101,9 @@ class PermissionSyncCommand extends Command
             $permissions = [];
             foreach ($permission as $rules) {
                 $rule = explode('.', $rules);
-                $perms = $permission_object->node($rule[0])->get(false);
+                $perms = $permission_object->reset($this->abilities)->from($rule[0])->get(true);
                 if ($rule[1] == '*') {
-                    if (!is_null($perms)) {
+                    if ($perms) {
                         if (!isset($permissions[$rule[0]])) {
                             $permissions[$rule[0]] = [];
                         }
@@ -113,29 +113,21 @@ class PermissionSyncCommand extends Command
                             if (is_int($perm)) {
                                 $auth_perms[$permission] = true;
                             } elseif (is_string($permission)) {
-                                $policies = explode('.', $permission);
-                                if (count($policies)==2) {
-                                    $auth_perms[$perm] = $this->policies[$policies[0]][$policies[1]];
-                                }
+                                $auth_perms[$perm] = $permission;
                             }
                         }
                         $permissions[$rule[0]] = $auth_perms;
                     }
                 } else {
-                    if (!is_null($perms)) {
+                    if ($perms) {
                         if (!isset($permissions[$rule[0]])) {
                             $permissions[$rule[0]] = [];
                         }
 
-//                        dd($rule, $perms);
-
                         if (in_array($rule[1], $perms)) {
                             $permissions[$rule[0]][$rule[1]] = true;
                         } elseif (array_key_exists($rule[1], $perms)) {
-                            $policies = explode('.', $perms[$rule[1]]);
-                            if (count($policies)==2) {
-                                $permissions[$rule[0]][$rule[1]] = $this->policies[$policies[0]][$policies[1]];
-                            }
+                            $permissions[$rule[0]][$rule[1]] = $perms[$rule[1]];
                         }
                     }
                 }

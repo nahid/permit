@@ -386,30 +386,26 @@ class Permission
     {
         $parameters = [$user];
 
-        $permit = explode('.', $permission);
+        if (is_null($permission)) {
+            return false;
+        }
 
-        if (count($permit) == 2) {
-            $auth_permission = $this->authPermissions->from(implode('.', $permit))->get();
+        $auth_permission = $this->authPermissions->from($permission)->get();
 
-            foreach ($params as $param) {
-                array_push($parameters, $param);
-            }
+        foreach ($params as $param) {
+            array_push($parameters, $param);
+        }
 
-
-            if (is_null($permission)) {
-                return false;
-            }
-
-            if ($auth_permission === true) {
-                return true;
-            } elseif (is_string($auth_permission)) {
-                $json = $this->json->copy()->collect(config('permit.policies'));
-                $policy = $json->from($auth_permission)->get();
-                if ($policy) {
-                    return $this->callPolicy($policy, $parameters);
-                }
+        if ($auth_permission === true) {
+            return true;
+        } elseif (is_string($auth_permission)) {
+            $json = $this->json->copy()->collect(config('permit.policies'));
+            $policy = $json->from($auth_permission)->get();
+            if ($policy) {
+                return $this->callPolicy($policy, $parameters);
             }
         }
+
         return false;
     }
 
