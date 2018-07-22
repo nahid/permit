@@ -108,7 +108,7 @@ class Permission
                     }
 
                     if (is_string($permission)) {
-                        if ($this->isPermissionDo($permission, $user, $params)) {
+                        if ($this->canUserDo($permission, $user, $params)) {
                             return true;
                         }
                     }
@@ -164,7 +164,7 @@ class Permission
                 }
 
                 if (is_string($permission)) {
-                    if ($this->isPermissionDo($permission, $user, $params)) {
+                    if ($this->canUserDo($permission, $user, $params)) {
                         return true;
                     }
                 }
@@ -219,7 +219,7 @@ class Permission
                 }
 
                 if (is_string($permission)) {
-                    if ($this->isPermissionDo($permission, $user, $params)) {
+                    if ($this->canUserDo($permission, $user, $params)) {
                         return true;
                     }
                 }
@@ -361,14 +361,12 @@ class Permission
     {
         $arr_callable = explode('@', $callable);
 
-        if (count($arr_callable)>1) {
-            if (class_exists($arr_callable[0])) {
+        if (count($arr_callable) == 2) {
+            if (method_exists($arr_callable[0], $arr_callable[1])) {
                 $class = new $arr_callable[0]();
                 $method = $arr_callable[1];
 
-                if (method_exists($class, $method)) {
-                    return call_user_func_array([$class, $method], $params);
-                }
+                return call_user_func_array([$class, $method], $params);
             }
         }
 
@@ -384,7 +382,7 @@ class Permission
      * @return bool|mixed
      * @throws \Exception
      */
-    protected function isPermissionDo($permission, $user, $params = [])
+    protected function canUserDo($permission, $user, $params = [])
     {
         $parameters = [$user];
 
@@ -436,7 +434,7 @@ class Permission
             }
 
 
-            if ($this->isPermissionDo($permission, $user, $params)) {
+            if ($this->canUserDo($permission, $user, $params)) {
                 return true;
             }
         }
@@ -465,38 +463,6 @@ class Permission
         }
 
         return $abilities;
-    }
-
-    /**
-     * parseAbilities is parse for policy
-     *
-     * @param $modules
-     * @return array
-     * @deprecated v2.1.0
-     */
-    protected function parseAbilities($modules)
-    {
-        $policies = $this->config->get('permit.policies');
-        $new_abilities = [];
-
-        foreach ($modules as $module=>$abilities) {
-            foreach ($abilities as $key => $ability) {
-                if (!isset($new_abilities[$module])) {
-                    $new_abilities[$module] = [];
-                }
-                if (is_int($key)) {
-                    $new_abilities[$module][] = $ability;
-                } elseif (is_string($key)) {
-                    $policies_name = explode('.', $ability);
-                    if (count($policies_name)==2) {
-                        $new_abilities[$module][$key] = $policies[$policies_name[0]][$policies_name[1]];
-                    }
-                }
-            }
-
-        }
-
-        return $new_abilities;
     }
 
     /**
