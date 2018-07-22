@@ -87,6 +87,7 @@ class Permission
      * @param array $params
      * @return bool
      * @throws AuthorizationException
+     * @throws \Exception
      */
     public function userAllows($user, $permission, $params = [])
     {
@@ -143,6 +144,7 @@ class Permission
      * @param array $params
      * @return bool
      * @throws AuthorizationException
+     * @throws \Exception
      */
     public function roleAllows($user, $permission, $params = [])
     {
@@ -179,6 +181,7 @@ class Permission
      * @param       $permission
      * @param array $params
      * @return bool
+     * @throws \Exception
      */
     public function roleCan($user, $permission, $params = [])
     {
@@ -379,6 +382,7 @@ class Permission
      * @param       $user
      * @param array $params
      * @return bool|mixed
+     * @throws \Exception
      */
     protected function isPermissionDo($permission, $user, $params = [])
     {
@@ -387,7 +391,8 @@ class Permission
         $permit = explode('.', $permission);
 
         if (count($permit) == 2) {
-            $auth_permissions = (array) $this->authPermissions->node($permit[0])->get(false);
+            $auth_permission = $this->authPermissions->from(implode('.', $permit))->get();
+
             foreach ($params as $param) {
                 array_push($parameters, $param);
             }
@@ -397,11 +402,13 @@ class Permission
                 return false;
             }
 
-            if (isset($auth_permissions[$permit[1]])) {
-                if ($auth_permissions[$permit[1]] === true) {
-                    return true;
-                } elseif (is_string($auth_permissions[$permit[1]])) {
-                    return $this->callPolicy($auth_permissions[$permit[1]], $parameters);
+            if ($auth_permission === true) {
+                return true;
+            } elseif (is_string($auth_permission)) {
+                $json = $this->json->copy()->collect(config('permit.policies'));
+                $policy = $json->from($auth_permission)->get();
+                if ($policy) {
+                    return $this->callPolicy($policy, $parameters);
                 }
             }
         }
@@ -414,6 +421,7 @@ class Permission
      * @param array $permissions
      * @param       $user
      * @return bool
+     * @throws \Exception
      */
     protected function hasOnePermission($permissions = [], $user)
     {
@@ -456,7 +464,7 @@ class Permission
             $abilities = $abilities_arr[$module];
         }
 
-        return $this->parseAbilities($abilities);
+        return $abilities;
     }
 
     /**
@@ -464,6 +472,7 @@ class Permission
      *
      * @param $modules
      * @return array
+     * @deprecated v2.1.0
      */
     protected function parseAbilities($modules)
     {
