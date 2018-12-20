@@ -5,7 +5,7 @@
     "type": "library",
     "require": {
         "php": ">=5.5.9",
-        "nahid/jsonq": "^5.0"
+        "nahid/jsonq": "^5.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.1"

@@ -207,7 +207,7 @@ class Permission
         if ($user instanceof $this->userModelNamespace) {
             $user_permissions = json_to_array($user->permissions);
             $role_permissions = json_to_array($user->permission->permission);
-            $abilities = array_merge($role_permissions, $user_permissions);
+            $abilities = $this->arrayMergeNested($role_permissions, $user_permissions);
 
             $this->abilities = $abilities;
 
@@ -263,6 +263,8 @@ class Permission
             $this->userModel->reguard();
             return true;
         }
+
+        return false;
     }
 
     /**
@@ -435,8 +437,8 @@ class Permission
     /**
      * getting all abilities from config
      *
-     * @param null $module
-     * @return null
+     * @param string $module
+     * @return array
      */
     public function getAbilities($module = null)
     {
@@ -473,5 +475,23 @@ class Permission
     public function role($role)
     {
         return $this->permission->getRole($role);
+    }
+
+    protected function arrayMergeNested(array &$array1, array &$array2)
+    {
+        $merged = $array1;
+        foreach ($array2 as $key => &$value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->arrayMergeNested($merged[$key], $value);
+            } else {
+                if (is_string($key)) {
+                    $merged[$key]  = $value;
+                } else {
+                    $merged[]  = $value;
+                }
+            }
+        }
+
+        return $merged;
     }
 }
