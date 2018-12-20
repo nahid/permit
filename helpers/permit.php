@@ -66,3 +66,23 @@ if (!function_exists('json_to_array')) {
         return $json_out;
     }
 }
+
+if (!function_exists('array_merge_nested')) {
+    function array_merge_nested(array &$array1, array &$array2)
+    {
+        $merged = $array1;
+        foreach ($array2 as $key => &$value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = array_merge_nested($merged[$key], $value);
+            } else {
+                if (is_string($key)) {
+                    $merged[$key]  = $value;
+                } else {
+                    $merged[]  = $value;
+                }
+            }
+        }
+
+        return $merged;
+    }
+}

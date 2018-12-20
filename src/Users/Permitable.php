@@ -5,12 +5,10 @@ namespace Nahid\Permit\Users;
 trait Permitable
 {
     /**
-     * boot model
+     * boot trait
      */
-    protected static function boot()
+    protected static function bootPermitable()
     {
-        parent::boot();
-
         static::addGlobalScope(new PermissionScope());
     }
 
@@ -33,6 +31,16 @@ trait Permitable
     public function getPermissionArrayAttribute()
     {
         return json_to_array($this->permissions);
+    }
+
+    public function getAbilitiesAttribute()
+    {
+        if ($this->relationLoaded('permission')) {
+            $role_permissions = json_to_array($this->permission->permission);
+        }
+        $user_permissions = json_to_array($this->attributes['permissions']);
+
+        return array_merge_nested($role_permissions, $user_permissions);
     }
 
     /**
