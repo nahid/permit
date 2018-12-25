@@ -33,7 +33,12 @@ class PermitServiceProvider extends ServiceProvider
             \Nahid\Permit\Commands\RemovePermissionCommand::class,
         ]);
 
-        $this->app->routeMiddleware(['permit' => \Nahid\Permit\Middleware\PermitMiddleware::class]);
+        if ($this->app instanceof LaravelApplication) {
+            $this->app['router']->aliasMiddleware('permit', \Nahid\Permit\Middleware\PermitMiddleware::class);
+        } elseif ($this->app instanceof LumenApplication) {
+            $this->app->routeMiddleware(['permit' => \Nahid\Permit\Middleware\PermitMiddleware::class]);
+        }
+
     }
     /**
      * Setup the config.
