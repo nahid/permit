@@ -30,7 +30,7 @@ and add the line for facade support
 hmm, Now you have to run this command to publish necessary files.
 
 ```shell
-php artisan vendor:publish --provider=Nahid\Permit\PermitServiceProvider
+php artisan vendor:publish --provider="Nahid\Permit\PermitServiceProvider"
 ```
 
 and then go to `config/permit.php` and edit with your desire credentials.
@@ -73,7 +73,7 @@ Now run this command for migrations
 php artisan migrate
 ```
 
-You are all most done, just add this trait `Nahid\Permit\Users\Permitable` in you `User` model. Example
+You are all most done, just add this trait `Nahid\Permit\Users\Permitable` in your `User` model. Example
 
 ```php
 namespace App;
@@ -96,7 +96,7 @@ When you run migrate command then we create a table 'permissions' with field 'ro
 add two column 'role' and 'permissions' in `users` table. `role` column store users role and `permissions` column store user specific controls.
 Here `role` column has a relation with `permissions.role_name` column with its controls. `permissions.permission` handle role based control.
 
-We store permissions as JSON format with specific service and abilities.
+We store permissions as JSON format with specific modules and abilities.
 
 ```json
 {
@@ -318,7 +318,7 @@ We provide several command for make user experience better
 
 Sync with your composed permissions with database.
 
-### `php artisan permit:add`
+### `php artisan permit:set`
 
 Add permission to an user or role
 
@@ -363,7 +363,7 @@ You can use `can_do()` instead of `Permit::can()`
 You can use `allows()` instead of `Permit::allows()
 
 
-## Blade Directive
+## Blade Directives
 
 Sometimes you may want to use this functionalities in you view. Permit comes with all blade directives.
 
