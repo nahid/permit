@@ -205,6 +205,10 @@ class Permission
     public function allows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
+            if ($user->{$this->roleColumn} == $this->superUser) {
+                return true;
+            }
+
             $this->abilities = $user->abilities;
 
             if (count($this->abilities) > 0) {

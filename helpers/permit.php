@@ -58,6 +58,10 @@ if (!function_exists('allows')) {
 if (!function_exists('json_to_array')) {
     function json_to_array($json)
     {
+        if (is_array($json)) {
+            return $json;
+        }
+
         $json_out = json_decode($json, true);
         if (is_string($json_out) || is_null($json_out)) {
             return [];

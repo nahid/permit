@@ -70,20 +70,21 @@ class FetchPermissionsCommand extends Command
      */
     public function getUserPermissions()
     {
-        $headers = ['Module', 'Ability', 'Permission'];
+        $headers = ['Ability', 'Permission'];
 
         $user = $this->user->find($this->argument('needle'));
-        $data = [];
         if ($user) {
-            $permissions = json_to_array($user->permissions);
+            $permissions = $user->abilities;
 
             if (!is_array($permissions)) {
                 $permissions = [];
             }
 
             foreach ($permissions as $module=>$permission) {
+                $this->warn("\n" . strtoupper($module));
+                $data = [];
                 foreach ($permission as $ability=>$perm) {
-                    $vals = [$module, $ability];
+                    $vals = [$ability];
                     if (is_bool($perm)) {
                         if ($perm) {
                             $vals[] = 'true';
@@ -96,9 +97,9 @@ class FetchPermissionsCommand extends Command
                     }
                     $data[] = $vals;
                 }
+                $this->table($headers, $data);
             }
 
-            $this->table($headers, $data);
         } else {
             $this->error("No user found!");
         }
@@ -109,12 +110,11 @@ class FetchPermissionsCommand extends Command
      */
     public function getRolePermissions()
     {
-        $headers = ['Module', 'Ability', 'Permission'];
+        $headers = ['Ability', 'Permission'];
 
         $role_name = $this->argument('needle');
 
         $role = $this->permission->findBy('role_name', $role_name);
-        $data = [];
         if ($role) {
             $permissions = json_to_array($role->permission);
 
@@ -123,6 +123,9 @@ class FetchPermissionsCommand extends Command
             }
 
             foreach ($permissions as $module=>$permission) {
+                $this->warn("\n" . strtoupper($module));
+                $data = [];
+
                 foreach ($permission as $ability=>$perm) {
                     $vals = [$module, $ability];
                     if (is_bool($perm)) {
@@ -137,9 +140,9 @@ class FetchPermissionsCommand extends Command
                     }
                     $data[] = $vals;
                 }
+                $this->table($headers, $data);
             }
 
-            $this->table($headers, $data);
         } else {
             $this->error("No role found!");
         }

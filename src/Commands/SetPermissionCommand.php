@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Nahid\Permit\Permissions\PermissionRepository;
 use Nahid\Permit\Users\UserRepository;
 
-class AddPermissionCommand extends Command
+class SetPermissionCommand extends Command
 {
 
     /**
@@ -29,7 +29,7 @@ class AddPermissionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'permit:add {type : two types 1. user 2. role} {needle : desire permission entity} {permission : permission name}';
+    protected $signature = 'permit:set {type : two types 1. user 2. role} {needle : desire permission entity} {permission : permission name}';
 
     /**
      * The console command description.
@@ -68,11 +68,11 @@ class AddPermissionCommand extends Command
         }
 
         if ($type == 'user') {
-            return $this->addUserPermission();
+            return $this->setUserPermission();
         }
 
         if ($type == 'role') {
-            return $this->addRolePermission();
+            return $this->setRolePermission();
         }
 
         $this->error('Bad parameters');
@@ -97,30 +97,44 @@ class AddPermissionCommand extends Command
      *
      * @return bool
      */
-    public function addUserPermission()
+    public function setUserPermission()
     {
+        $expected_values = ['true'=>true, 'false'=>false];
         $user_id = $this->argument('needle');
         $prm = $this->argument('permission');
+        $explode = explode('=', $prm);
+        $ability = true;
+
+        if (count($explode) == 2) {
+            $prm = $explode[0];
+            if (isset($expected_values[$explode[1]])) {
+                $ability = $expected_values[$explode[1]];
+            } else {
+                $ability = $this->fetchPolicy($explode[1]);
+            }
+
+        }
+
         $prms = explode('.', $prm);
         $abilities = config('permit.abilities');
 
         $module = $prms[0];
-        $mod_perms = [];
-        if (isset($abilities[$module])) {
-            $mod_perms = $abilities[$module];
+        if (!isset($abilities[$module])) {
+            $this->error('No modules are defined in config');
+            return false;
         }
 
+        $mod_perms = $abilities[$module];
         $user = $this->user->find($user_id);
 
         if ($user) {
             $permission = json_to_array($user->permissions);
-            if (in_array($prms[1], $mod_perms)) {
-                $permission[$module][$prms[1]] = true;
-            } elseif (array_key_exists($prms[1], $mod_perms)) {
-                $policy = $this->fetchPolicy($mod_perms[$prms[1]]);
-                $permission[$module][$prms[1]] = $policy;
+            if (!in_array($prms[1], $mod_perms) && !array_key_exists($prms[1], $mod_perms)) {
+                $this->error('Please set this permission in config/permit.php first!');
+                return false;
             }
 
+            $permission[$module][$prms[1]] = $ability;
             $this->user->update($user->id, ['permissions' => json_encode($permission)]);
             $this->info('Successfully added permission to user');
             return true;
@@ -135,30 +149,44 @@ class AddPermissionCommand extends Command
      *
      * @return bool
      */
-    public function addRolePermission()
+    public function setRolePermission()
     {
+        $expected_values = ['true'=>true, 'false'=>false];
         $role_name = $this->argument('needle');
         $prm = $this->argument('permission');
-        $prms = explode('.', $prm);
         $abilities = config('permit.abilities');
+        $explode = explode('=', $prm);
+        $ability = true;
 
-        $module = $prms[0];
-        $mod_perms = [];
-        if (isset($abilities[$module])) {
-            $mod_perms = $abilities[$module];
+        if (count($explode) == 2) {
+            $prm = $explode[0];
+            if (isset($expected_values[$explode[1]])) {
+                $ability = $expected_values[$explode[1]];
+            } else {
+                $ability = $this->fetchPolicy($explode[1]);
+            }
+
         }
 
+        $prms = explode('.', $prm);
+
+        $module = $prms[0];
+        if (!isset($abilities[$module])) {
+            $this->error('No modules are defined in config');
+            return false;
+        }
+
+        $mod_perms = $abilities[$module];
         $role = $this->permission->findBy('role_name', $role_name);
 
         if ($role) {
             $permission = json_to_array($role->permission);
-            if (in_array($prms[1], $mod_perms)) {
-                $permission[$module][$prms[1]] = true;
-            } elseif (array_key_exists($prms[1], $mod_perms)) {
-                $policy = $this->fetchPolicy($mod_perms[$prms[1]]);
-                $permission[$module][$prms[1]] = $policy;
+            if (!in_array($prms[1], $mod_perms) && !array_key_exists($prms[1], $mod_perms)) {
+                $this->error('Please set this permission in config/permit.php first!');
+                return false;
             }
 
+            $permission[$module][$prms[1]] = $ability;
             $this->permission->update($role->id, ['permission' => json_encode($permission)]);
             $this->info('Successfully added permission to role');
             return true;
