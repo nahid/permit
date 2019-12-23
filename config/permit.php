@@ -7,10 +7,13 @@ return [
         'role_column'   => 'type'
     ],
 
-    'super_user'    =>  'admin',
+    'roles_table' => 'permissions',
+    'user_roles_table' => 'user_permissions',
+
+    'super_user'    =>  'superadmin',
 
     'abilities'   => [
-       // "module"  => ['ability1', 'ability2', 'ability3'=>'policy_module.policy'],
+        /*"module"  => ['create', 'update', 'delete'],*/
     ],
 
 
@@ -24,7 +27,7 @@ return [
 
     'roles' => [
         /*'role_name' => [
-            'module.ability',
+            'ability.*',
         ],*/
     ]
 

@@ -14,10 +14,10 @@
         "classmap": [
         ],
         "psr-4": {
-            "Nahid\\Permit\\": "src/"
+            "Nahid\\Permit\\": "src"
         },
         "files": [
-            "helpers/permit.php"
+          "helpers/permit.php"
         ]
     },
     "license": "CC-BY-3.0",

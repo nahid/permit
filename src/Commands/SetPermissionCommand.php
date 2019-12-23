@@ -3,14 +3,14 @@
 namespace Nahid\Permit\Commands;
 
 use Illuminate\Console\Command;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
 use Nahid\Permit\Users\UserRepository;
 
 class SetPermissionCommand extends Command
 {
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
     protected $permission;
 
@@ -42,10 +42,10 @@ class SetPermissionCommand extends Command
     /**
      * AddPermissionCommand constructor.
      *
-     * @param PermissionRepository $permissionRepository
+     * @param RoleRepository $permissionRepository
      * @param UserRepository       $userRepository
      */
-    public function __construct(PermissionRepository $permissionRepository, UserRepository $userRepository)
+    public function __construct(RoleRepository $permissionRepository, UserRepository $userRepository)
     {
         parent::__construct();
         $namespace = config('permit.users.model');

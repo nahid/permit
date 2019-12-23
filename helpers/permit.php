@@ -72,15 +72,20 @@ if (!function_exists('json_to_array')) {
 }
 
 if (!function_exists('array_merge_nested')) {
-    function array_merge_nested(array &$array1, array &$array2)
+    function array_merge_nested(array &$array1, array &$array2, $priority = true)
     {
         $merged = $array1;
-        foreach ($array2 as $key => &$value) {
+        foreach ($array2 as $key => $value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
-                $merged[$key] = array_merge_nested($merged[$key], $value);
+                $merged[$key] = array_merge_nested($merged[$key], $value, $priority);
             } else {
                 if (is_string($key)) {
-                    $merged[$key]  = $value;
+                    if ($priority) {
+                        $merged[$key]  = $value != false ? $value : ($merged[$key] ?? false);
+                    } else {
+                        $merged[$key]  =  $value;
+                    }
+
                 } else {
                     $merged[]  = $value;
                 }

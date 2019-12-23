@@ -5,7 +5,8 @@ namespace Nahid\Permit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Config\Repository;
 use Nahid\JsonQ\Jsonq;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
+use Nahid\Permit\Roles\UserRoleRepository;
 use Nahid\Permit\Users\UserRepository;
 
 class Permission
@@ -28,9 +29,14 @@ class Permission
     protected $config;
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
-    protected $permission;
+    protected $role;
+
+    /**
+     * @var RoleRepository
+     */
+    protected $userRole;
 
     /**
      * user model namespace
@@ -60,16 +66,18 @@ class Permission
     protected $abilities = [];
 
     /**
-     * Permission constructor.
+     * Role constructor.
      *
      * @param Repository           $config
-     * @param PermissionRepository $permission
+     * @param RoleRepository $role
      * @param UserRepository       $user
+     * @throws
      */
-    public function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
+    public function __construct(Repository $config, RoleRepository $role, UserRoleRepository $userRole, UserRepository $user)
     {
         $this->config = $config;
-        $this->permission = $permission;
+        $this->role = $role;
+        $this->userRole = $userRole;
         $this->user = $user;
         $this->userModelNamespace = $this->config->get('permit.users.model');
         $this->superUser = $this->config->get('permit.super_user');
@@ -126,6 +134,7 @@ class Permission
      * @param       $permission
      * @param array $params
      * @return bool
+     * @throws
      */
     public function userCan($user, $permission, $params = [])
     {
@@ -256,12 +265,10 @@ class Permission
     public function setUserRole($user_id, $role_name)
     {
         $user = $this->user->find($user_id);
+        $role = $this->role->findBy('role_name', $role_name);
 
-        if ($user) {
-            $this->userModel->unguard();
-            $this->user->update($user_id, [$this->config->get('permit.users.role_column') => $role_name]);
-            $this->userModel->reguard();
-            return true;
+        if ($user && $role) {
+            return $this->userRole->setUserRole($user_id, $role->id);
         }
 
         return false;
@@ -317,7 +324,7 @@ class Permission
      */
     public function setRolePermissions($role_name, $module, $abilities = [])
     {
-        $role = $this->permission->findBy('role_name', $role_name);
+        $role = $this->role->findBy('role_name', $role_name);
         if ($role) {
             $permission = json_to_array($role->permission);
             foreach ($abilities as $name => $val) {
@@ -340,7 +347,7 @@ class Permission
                 }
             }
             //dd($row);
-            $this->permission->create($row);
+            $this->role->create($row);
         }
         return true;
     }
@@ -463,7 +470,7 @@ class Permission
      */
     public function roles()
     {
-        return $this->permission->getRoles();
+        return $this->role->getRoles();
     }
 
     /**
@@ -474,6 +481,6 @@ class Permission
      */
     public function role($role)
     {
-        return $this->permission->getRole($role);
+        return $this->role->getRole($role);
     }
 }

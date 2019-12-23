@@ -45,7 +45,7 @@ class PermitServiceProvider extends ServiceProvider
      */
     protected function setupConfig()
     {
-        $source = realpath(__DIR__.'/../config/permit.php');
+        $source = realpath(__DIR__ . '/../config/permit.php');
         // Check if the application is a Laravel OR Lumen instance to properly merge the configuration file.
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('permit.php')]);
@@ -60,7 +60,7 @@ class PermitServiceProvider extends ServiceProvider
     protected function setupMigrations()
     {
         $this->publishes([
-            realpath(__DIR__.'/../database/migrations/') => database_path('migrations'),
+            realpath(__DIR__ . '/../database/migrations/') => database_path('migrations'),
         ], 'migrations');
     }
     /**
@@ -71,7 +71,7 @@ class PermitServiceProvider extends ServiceProvider
         $this->app->singleton('permit', function (Container $app) {
             return new Permission(
                 $app['config'],
-                $app['Nahid\Permit\Permissions\PermissionRepository'],
+                $app['Nahid\Permit\Roles\RoleRepository'],
                 $app['Nahid\Permit\Users\UserRepository']
             );
         });

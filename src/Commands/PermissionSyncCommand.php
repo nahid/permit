@@ -3,7 +3,7 @@
 namespace Nahid\Permit\Commands;
 
 use Illuminate\Console\Command;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
 use Nahid\Permit\Users\UserRepository;
 use Nahid\JsonQ\Jsonq;
 
@@ -45,7 +45,7 @@ class PermissionSyncCommand extends Command
     protected $user;
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
     protected $permission;
 
@@ -65,9 +65,9 @@ class PermissionSyncCommand extends Command
      * PermissionSyncCommand constructor.
      *
      * @param UserRepository       $userRepository
-     * @param PermissionRepository $permissionRepository
+     * @param RoleRepository $permissionRepository
      */
-    public function __construct(UserRepository $userRepository, PermissionRepository $permissionRepository)
+    public function __construct(UserRepository $userRepository, RoleRepository $permissionRepository)
     {
         parent::__construct();
         $this->abilities = config('permit.abilities');
@@ -166,13 +166,13 @@ class PermissionSyncCommand extends Command
         foreach ($data as $d) {
             if (!$this->permission->syncRolePermissions($d['role_name'], $d, $roles)) {
                 $db->rollback();
-                $this->error('Permissions Synced Failed!');
+                $this->error('Roles Synced Failed!');
                 return false;
 
             }
         }
         $db->commit();
-        $this->info('Permissions Synced!');
+        $this->info('Roles Synced!');
     }
 
     /**
