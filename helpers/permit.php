@@ -72,15 +72,23 @@ if (!function_exists('json_to_array')) {
 }
 
 if (!function_exists('array_merge_nested')) {
-    function array_merge_nested(array &$array1, array &$array2)
+    function array_merge_nested(array &$array1, array &$array2, $priority = true)
     {
         $merged = $array1;
-        foreach ($array2 as $key => &$value) {
+        foreach ($array2 as $key => $value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
-                $merged[$key] = array_merge_nested($merged[$key], $value);
+                $merged[$key] = array_merge_nested($merged[$key], $value, $priority);
             } else {
                 if (is_string($key)) {
-                    $merged[$key]  = $value;
+                    if ($value === null) {
+                        continue;
+                    }
+
+                    if ($priority) {
+                        $merged[$key]  = $value != false ? $value : ($merged[$key] ?? false);
+                    } else {
+                        $merged[$key]  =  $value;
+                    }
                 } else {
                     $merged[]  = $value;
                 }
@@ -88,5 +96,63 @@ if (!function_exists('array_merge_nested')) {
         }
 
         return $merged;
+    }
+}
+
+if (!function_exists('array_multidimensional_diff')) {
+    function array_multidimensional_diff($array1, $array2)
+    {
+        $result = array();
+
+        foreach ($array1 as $key => $value) {
+            if (!is_array($array2) || !array_key_exists($key, $array2)) {
+                $result[$key] = $value;
+                continue;
+            }
+
+            if (is_array($value)) {
+                $recursiveArrayDiff = array_multidimensional_diff($value, $array2[$key]);
+
+                if (count($recursiveArrayDiff)) {
+                    $result[$key] = $recursiveArrayDiff;
+                }
+
+                continue;
+            }
+
+            if ($value != $array2[$key]) {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('array_value_replace')) {
+    function array_value_replace(array $array, array $replace)
+    {
+        $data = [];
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = array_value_replace($value, $replace);
+                continue;
+            } else {
+                if(is_bool($value)) {
+                    $data[$key] = $value;
+                    continue;
+                }
+
+                if (array_key_exists($value, $replace)) {
+                    $data[$key] = $replace[$value];
+                    continue;
+                }
+
+                $data[$key] = $value;
+            }
+        }
+
+        return $data;
     }
 }

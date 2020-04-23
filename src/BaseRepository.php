@@ -2,18 +2,22 @@
 
 namespace Nahid\Permit;
 
+use Illuminate\Database\Eloquent\Model;
+
 abstract class BaseRepository
 {
     /**
      * Model instance
-     * @var
+     * @var Model $model
      */
     protected $model;
 
     public function __construct()
     {
         $model = $this->setModel();
-        $this->model = new $model();
+        if (class_exists($model)) {
+            $this->model = new $model();
+        }
     }
 
     /**
@@ -66,7 +70,9 @@ abstract class BaseRepository
      */
     public function create(array $data)
     {
-        return $this->model->create($data);
+        $this->model->fill($data);
+
+        return $this->model->save();
     }
 
     /**

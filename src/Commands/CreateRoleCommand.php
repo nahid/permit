@@ -3,13 +3,13 @@
 namespace Nahid\Permit\Commands;
 
 use Illuminate\Console\Command;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
 
 class CreateRoleCommand extends Command
 {
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
     protected $permission;
     /**
@@ -30,9 +30,9 @@ class CreateRoleCommand extends Command
     /**
      * CreateRoleCommand constructor.
      *
-     * @param PermissionRepository $permissionRepository
+     * @param RoleRepository $permissionRepository
      */
-    public function __construct(PermissionRepository $permissionRepository)
+    public function __construct(RoleRepository $permissionRepository)
     {
         parent::__construct();
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Nahid\Permit\Permissions;
+namespace Nahid\Permit\Roles;
 
 use Nahid\Permit\BaseRepository;
 
-class PermissionRepository extends BaseRepository
+class RoleRepository extends BaseRepository
 {
     /**
      * sync role permissions
@@ -61,6 +61,6 @@ class PermissionRepository extends BaseRepository
      */
     protected function setModel()
     {
-        return 'Nahid\Permit\Permissions\Permission';
+        return 'Nahid\Permit\Roles\Role';
     }
 }

@@ -3,14 +3,14 @@
 namespace Nahid\Permit\Commands;
 
 use Illuminate\Console\Command;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
 use Nahid\Permit\Users\UserRepository;
 
 class FetchPermissionsCommand extends Command
 {
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
     protected $permission;
 
@@ -36,10 +36,10 @@ class FetchPermissionsCommand extends Command
     /**
      * FetchPermissionsCommand constructor.
      *
-     * @param PermissionRepository $permissionRepository
+     * @param RoleRepository $permissionRepository
      * @param UserRepository       $userRepository
      */
-    public function __construct(PermissionRepository $permissionRepository, UserRepository $userRepository)
+    public function __construct(RoleRepository $permissionRepository, UserRepository $userRepository)
     {
         parent::__construct();
 
@@ -70,7 +70,7 @@ class FetchPermissionsCommand extends Command
      */
     public function getUserPermissions()
     {
-        $headers = ['Ability', 'Permission'];
+        $headers = ['Ability', 'Role'];
 
         $user = $this->user->find($this->argument('needle'));
         if ($user) {
@@ -110,7 +110,7 @@ class FetchPermissionsCommand extends Command
      */
     public function getRolePermissions()
     {
-        $headers = ['Ability', 'Permission'];
+        $headers = ['Ability', 'Role'];
 
         $role_name = $this->argument('needle');
 

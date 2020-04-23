@@ -19,7 +19,7 @@ abstract class AbstractMiddleware
      */
     abstract protected function permission($permission, $params = []);
 
-    public function handle($request, Closure $next, $permission, $params)
+    public function handle($request, Closure $next, $permission, $params = [])
     {
         if ($this->permission($permission, $params)) {
             return $next($request);

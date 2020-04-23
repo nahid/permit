@@ -5,7 +5,8 @@ namespace Nahid\Permit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Config\Repository;
 use Nahid\JsonQ\Jsonq;
-use Nahid\Permit\Permissions\PermissionRepository;
+use Nahid\Permit\Roles\RoleRepository;
+use Nahid\Permit\Roles\UserRoleRepository;
 use Nahid\Permit\Users\UserRepository;
 
 class Permission
@@ -28,9 +29,14 @@ class Permission
     protected $config;
 
     /**
-     * @var PermissionRepository
+     * @var RoleRepository
      */
-    protected $permission;
+    protected $role;
+
+    /**
+     * @var RoleRepository
+     */
+    protected $userRole;
 
     /**
      * user model namespace
@@ -60,16 +66,19 @@ class Permission
     protected $abilities = [];
 
     /**
-     * Permission constructor.
+     * Role constructor.
      *
      * @param Repository           $config
-     * @param PermissionRepository $permission
+     * @param RoleRepository $role
+     * @param UserRoleRepository $userRole
      * @param UserRepository       $user
+     * @throws
      */
-    public function __construct(Repository $config, PermissionRepository $permission, UserRepository $user)
+    public function __construct(Repository $config, RoleRepository $role, UserRoleRepository $userRole, UserRepository $user)
     {
         $this->config = $config;
-        $this->permission = $permission;
+        $this->role = $role;
+        $this->userRole = $userRole;
         $this->user = $user;
         $this->userModelNamespace = $this->config->get('permit.users.model');
         $this->superUser = $this->config->get('permit.super_user');
@@ -77,119 +86,6 @@ class Permission
         $this->userModel = new $this->userModelNamespace();
 
         $this->json = new Jsonq();
-    }
-
-    /**
-     * check the given user is allows for the given permission
-     *
-     * @param       $user
-     * @param       $permission
-     * @param array $params
-     * @return bool
-     * @throws AuthorizationException
-     * @throws \Exception
-     */
-    public function userAllows($user, $permission, $params = [])
-    {
-        if ($user instanceof $this->userModelNamespace) {
-            if ($user->{$this->roleColumn} == $this->superUser) {
-                return true;
-            }
-
-            if (!empty($user->permissions)) {
-                $abilities = json_to_array($user->permissions);
-                $this->abilities = $abilities;
-
-                if (!is_null($user->permission)) {
-                    if (is_array($permission)) {
-                        if ($this->hasOnePermission($permission, $user)) {
-                            return true;
-                        }
-                    }
-
-                    if (is_string($permission)) {
-                        if ($this->canUserDo($permission, $user, $params)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        throw new AuthorizationException('Unauthorized');
-    }
-
-    /**
-     * Its an alias of userAllows, but its return bool instead of Exception
-     *
-     * @param       $user
-     * @param       $permission
-     * @param array $params
-     * @return bool
-     */
-    public function userCan($user, $permission, $params = [])
-    {
-        try {
-            return $this->userAllows($user, $permission, $params);
-        } catch (AuthorizationException $e) {
-            return false;
-        }
-    }
-
-    /**
-     * check the given user's role is allows for the given permission
-     *
-     * @param       $user
-     * @param       $permission
-     * @param array $params
-     * @return bool
-     * @throws AuthorizationException
-     * @throws \Exception
-     */
-    public function roleAllows($user, $permission, $params = [])
-    {
-        if ($user instanceof $this->userModelNamespace) {
-            if ($user->{$this->roleColumn} == $this->superUser) {
-                return true;
-            }
-
-            $abilities = json_to_array($user->permission->permission);
-            $this->abilities = $abilities;
-
-            if (!is_null($user->permission)) {
-                if (is_array($permission)) {
-                    if ($this->hasOnePermission($permission, $user)) {
-                        return true;
-                    }
-                }
-
-                if (is_string($permission)) {
-                    if ($this->canUserDo($permission, $user, $params)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        throw new AuthorizationException('Unauthorized');
-    }
-
-    /**
-     * its an alias of roleAllows, but its return bool instead of Exception
-     *
-     * @param       $user
-     * @param       $permission
-     * @param array $params
-     * @return bool
-     * @throws \Exception
-     */
-    public function roleCan($user, $permission, $params = [])
-    {
-        try {
-            return $this->roleAllows($user, $permission, $params);
-        } catch (AuthorizationException $e) {
-            return false;
-        }
     }
 
     /**
@@ -256,12 +152,10 @@ class Permission
     public function setUserRole($user_id, $role_name)
     {
         $user = $this->user->find($user_id);
+        $role = $this->role->findBy('role_name', $role_name);
 
-        if ($user) {
-            $this->userModel->unguard();
-            $this->user->update($user_id, [$this->config->get('permit.users.role_column') => $role_name]);
-            $this->userModel->reguard();
-            return true;
+        if ($user && $role) {
+            return $this->userRole->setUserRole($user_id, $role->id);
         }
 
         return false;
@@ -317,7 +211,7 @@ class Permission
      */
     public function setRolePermissions($role_name, $module, $abilities = [])
     {
-        $role = $this->permission->findBy('role_name', $role_name);
+        $role = $this->role->findBy('role_name', $role_name);
         if ($role) {
             $permission = json_to_array($role->permission);
             foreach ($abilities as $name => $val) {
@@ -339,8 +233,7 @@ class Permission
                     $row['permission'][$module][$name] = $policy;
                 }
             }
-            //dd($row);
-            $this->permission->create($row);
+            $this->role->create($row);
         }
         return true;
     }
@@ -355,7 +248,6 @@ class Permission
     protected function callPolicy($callable, $params = [])
     {
         $arr_callable = explode('@', $callable);
-
         if (count($arr_callable) == 2) {
             if (method_exists($arr_callable[0], $arr_callable[1])) {
                 $class = new $arr_callable[0]();
@@ -391,17 +283,17 @@ class Permission
             array_push($parameters, $param);
         }
 
-        if ($auth_permission === true) {
-            return true;
-        } elseif (is_string($auth_permission)) {
-            $json = $this->json->copy()->collect(config('permit.policies'));
-            $policy = $json->from($auth_permission)->get();
-            if ($policy) {
-                return $this->callPolicy($policy, $parameters);
-            }
+        if ($auth_permission === false || $auth_permission === null) {
+            return false;
         }
 
-        return false;
+        $policies = config('permit.policies', []);
+        $policy = $policies[$permission] ?? null;
+        if ($policy) {
+            return $this->callPolicy($policy, $parameters);
+        }
+
+        return true;
     }
 
     /**
@@ -463,7 +355,7 @@ class Permission
      */
     public function roles()
     {
-        return $this->permission->getRoles();
+        return $this->role->getRoles();
     }
 
     /**
@@ -474,6 +366,6 @@ class Permission
      */
     public function role($role)
     {
-        return $this->permission->getRole($role);
+        return $this->role->getRole($role);
     }
 }
