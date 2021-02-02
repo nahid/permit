@@ -283,7 +283,7 @@ class Permission
             array_push($parameters, $param);
         }
 
-        if ($auth_permission === false || $auth_permission === null) {
+        if (empty($auth_permission)) {
             return false;
         }
 
