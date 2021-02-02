@@ -13,8 +13,8 @@ class AddPermissionsColumnInUsersTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn(config('permit.users.table'), 'permissions')) {
-            Schema::table(config('permit.users.table'), function(Blueprint $tbl) {
+        if (!Schema::connection(config('permit.connection'))->hasColumn(config('permit.users.table'), 'permissions')) {
+            Schema::connection(config('permit.connection'))->table(config('permit.users.table'), function(Blueprint $tbl) {
                 $tbl->text('permissions')->nullable();
             });
         }
@@ -27,8 +27,8 @@ class AddPermissionsColumnInUsersTable extends Migration
      */
     public function down()
     {
-        if (!Schema::hasColumn(config('permit.users.table'), 'permissions')) {
-            Schema::table(config('permit.users.table'), function(Blueprint $tbl) {
+        if (!Schema::connection(config('permit.connection'))->hasColumn(config('permit.users.table'), 'permissions')) {
+            Schema::connection(config('permit.connection'))->table(config('permit.users.table'), function(Blueprint $tbl) {
                 $tbl->dropColumn('permissions');
             });
         }

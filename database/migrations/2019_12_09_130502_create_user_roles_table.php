@@ -13,7 +13,8 @@ class CreateUserRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create(config('permit.user_permissions_table', 'user_roles'), function (Blueprint $table) {
+        Schema::connection(config('permit.connection'))
+            ->create(config('permit.user_roles_table', 'user_roles'), function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id');
             $table->integer('role_id');
@@ -28,6 +29,7 @@ class CreateUserRolesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists(config('permit.user_permissions_table', 'user_roles'));
+        Schema::connection(config('permit.connection'))
+            ->dropIfExists(config('permit.user_roles_table', 'user_roles'));
     }
 }

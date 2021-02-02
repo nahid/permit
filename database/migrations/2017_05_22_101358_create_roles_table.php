@@ -13,7 +13,7 @@ class CreateRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create(config('permit.roles_table', 'roles'), function(Blueprint $tbl) {
+        Schema::connection(config('permit.connection'))->create(config('permit.roles_table', 'roles'), function(Blueprint $tbl) {
             $tbl->increments('id');
             $tbl->string('role_name', 50)->index();
             $tbl->text('permission');
@@ -27,6 +27,6 @@ class CreateRolesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists(config('permit.roles_table', 'roles'));
+        Schema::connection(config('permit.connection'))->dropIfExists(config('permit.roles_table', 'roles'));
     }
 }

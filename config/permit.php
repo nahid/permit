@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'connection' => env('DB_CONNECTION', 'mysql'),
     'users' => [
         'model' => \App\User::class,
         'table' => 'users',
