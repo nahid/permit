@@ -16,6 +16,7 @@ class Role extends Model
     public function __construct()
     {
         parent::__construct();
+        $this->setConnection(config('permit.connection'));
 
         $this->table = config('permit.roles_table', 'roles');
     }
