@@ -5,13 +5,14 @@ return [
     'users' => [
         'model' => \App\User::class,
         'table' => 'users',
-        'role_column'   => 'type'
     ],
 
     'roles_table' => 'roles',
     'user_roles_table' => 'user_roles',
-
-    'super_user'    =>  'superadmin',
+    
+    'debug' => [
+        'superuser_mode' => false,
+    ],
 
     'abilities'   => [
         /*"module"  => ['create', 'update', 'delete'],*/

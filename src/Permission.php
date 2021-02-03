@@ -11,17 +11,12 @@ use Nahid\Permit\Users\UserRepository;
 
 class Permission
 {
-    /**
-     * super user role
-     * @var mixed
-     */
-    protected $superUser;
 
     /**
      * user table role column
      * @var mixed
      */
-    protected $roleColumn;
+    protected $debugSuperuserMode;
 
     /**
      * @var Repository
@@ -81,8 +76,7 @@ class Permission
         $this->userRole = $userRole;
         $this->user = $user;
         $this->userModelNamespace = $this->config->get('permit.users.model');
-        $this->superUser = $this->config->get('permit.super_user');
-        $this->roleColumn = $this->config->get('permit.users.role_column');
+        $this->debugSuperuserMode = $this->config->get('permit.debug.superuser_mode', false);
         $this->userModel = new $this->userModelNamespace();
 
         $this->json = new Jsonq();
@@ -101,7 +95,7 @@ class Permission
     public function allows($user, $permission, $params = [])
     {
         if ($user instanceof $this->userModelNamespace) {
-            if ($user->{$this->roleColumn} == $this->superUser) {
+            if ($this->debugSuperuserMode) {
                 return true;
             }
 
