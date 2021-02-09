@@ -244,7 +244,7 @@ Now you have bind this policy with an ability. Suppose we have a module about co
 ```php
 "comment"  => ['create', 'update'=>'comment.update', 'delete'],
 ```
-here `'update'=>'post.update'` update is an ability and `post.update` is a policy. This system are bind policy with ability.
+here `'update'=>'comment.update'` update is an ability and `comment.update` is a policy. This system are bind policy with ability.
 so now you can use this policy like a general ability.
 
 You can predefined your all roles permissions in config file. First set your aprox abilities and then assign abilities to roles. Take a look
