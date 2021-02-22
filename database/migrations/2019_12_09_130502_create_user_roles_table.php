@@ -6,6 +6,10 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateUserRolesTable extends Migration
 {
+    public function __construct()
+    {
+        $this->connection = config("permit.connection");
+    }
     /**
      * Run the migrations.
      *
@@ -13,8 +17,7 @@ class CreateUserRolesTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('permit.connection'))
-            ->create(config('permit.user_roles_table', 'user_roles'), function (Blueprint $table) {
+        Schema::connection($this->connection)->create(config('permit.user_roles_table', 'user_roles'), function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id');
             $table->integer('role_id');
@@ -29,7 +32,6 @@ class CreateUserRolesTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('permit.connection'))
-            ->dropIfExists(config('permit.user_roles_table', 'user_roles'));
+        Schema::connection($this->connection)->dropIfExists(config('permit.user_roles_table', 'user_roles'));
     }
 }

@@ -6,6 +6,10 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddPermissionsColumnInUsersTable extends Migration
 {
+    public function __construct()
+    {
+        $this->connection = config("permit.connection");
+    }
     /**
      * Run the migrations.
      *
@@ -13,8 +17,8 @@ class AddPermissionsColumnInUsersTable extends Migration
      */
     public function up()
     {
-        if (!Schema::connection(config('permit.connection'))->hasColumn(config('permit.users.table'), 'permissions')) {
-            Schema::connection(config('permit.connection'))->table(config('permit.users.table'), function(Blueprint $tbl) {
+        if (!Schema::connection($this->connection)->hasColumn(config('permit.users.table'), 'permissions')) {
+            Schema::connection($this->connection)->table(config('permit.users.table'), function(Blueprint $tbl) {
                 $tbl->text('permissions')->nullable();
             });
         }
@@ -27,8 +31,8 @@ class AddPermissionsColumnInUsersTable extends Migration
      */
     public function down()
     {
-        if (!Schema::connection(config('permit.connection'))->hasColumn(config('permit.users.table'), 'permissions')) {
-            Schema::connection(config('permit.connection'))->table(config('permit.users.table'), function(Blueprint $tbl) {
+        if (!Schema::connection($this->connection)->hasColumn(config('permit.users.table'), 'permissions')) {
+            Schema::connection($this->connection)->table(config('permit.users.table'), function(Blueprint $tbl) {
                 $tbl->dropColumn('permissions');
             });
         }
