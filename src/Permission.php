@@ -298,8 +298,12 @@ class Permission
      * @return bool
      * @throws \Exception
      */
-    protected function hasOnePermission($permissions = [], $user)
+    protected function hasOnePermission($permissions, $user)
     {
+        if (!is_array($permissions)) {
+            return false;
+        }
+        
         foreach ($permissions as $key => $value) {
             $permission = '';
             $params = [];
