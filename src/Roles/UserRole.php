@@ -14,9 +14,9 @@ class UserRole extends Model
         'role_id',
     ];
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
-        parent::__construct();
+        parent::__construct($attributes);
         $this->setConnection(config('permit.connection'));
 
         $this->table = config('permit.user_roles_table', 'user_roles');
