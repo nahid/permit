@@ -3,7 +3,7 @@
 return [
     'connection' => env('DB_CONNECTION', 'mysql'),
     'users' => [
-        'model' => \App\User::class,
+        'model' => \App\Models\User::class,
         'table' => 'users',
     ],
 
