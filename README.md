@@ -39,7 +39,7 @@ and then go to `config/permit.php` and edit with your desire credentials.
 
 return [
     'users' => [
-        'model' => \App\User::class,
+        'model' => \App\Models\User::class,
         'table' => 'users',
         'role_column'   => 'type'
     ],
@@ -354,9 +354,9 @@ You can use `role_can()` instead of `Permit::roleCan()`
 
 You can use `role_allows()` instead of `Permit::roleAllows()`
 
-#### can_do()
+#### canDo()
 
-You can use `can_do()` instead of `Permit::can()`
+You can use `canDo()` instead of `Permit::can()`
 
 #### allows()
 
