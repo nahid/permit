@@ -40,6 +40,11 @@ class PermissionSyncCommand extends Command
     protected $policies;
 
     /**
+     * @var mixed
+     */
+    protected $roleColumn;
+
+    /**
      * @var UserRepository
      */
     protected $user;
