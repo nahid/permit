@@ -20,7 +20,7 @@ class Blades
         });
 
         Blade::directive('endUserCan', function () {
-            return '<?php endif; ?>';
+            return '<?php endif ?>';
         });
 
         Blade::directive('roleCan', function ($expression) {
@@ -32,7 +32,7 @@ class Blades
         });
 
         Blade::directive('endRoleCan', function () {
-            return '<?php endif; ?>';
+            return '<?php endif ?>';
         });
 
         Blade::directive('allows', function ($expression) {
@@ -44,7 +44,11 @@ class Blades
         });
 
         Blade::directive('endAllows', function () {
-            return '<?php endif; ?>';
+            return '<?php endif ?>';
+        });
+
+        Blade::directive('otherwise', function () {
+            return "<?php else : ?>";
         });
     }
 }
